@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime
 from agent.profiler import load_profile, get_words_due_for_review
 
 WORD_BANK_PATH = os.path.join(os.path.dirname(__file__), "../data/word_bank.json")
@@ -12,72 +13,55 @@ def _load_word_bank() -> list[dict]:
 
 def recommend_words(student_id: str, count: int = 5) -> list[dict]:
     profile = load_profile(student_id)
-    all_words = _load_word_bank()
-    seen_words = set(profile["words"].keys())
-    current_difficulty = profile["current_difficulty"]
-    consecutive_failures = profile["consecutive_failures"]
-    top_struggles = set(k for k, _ in sorted(
-        profile["phonics_struggles"].items(), key=lambda x: x[1], reverse=True
-    )[:3])
-    preferred_themes = set(k for k, _ in sorted(
-        profile["theme_preferences"].items(), key=lambda x: x[1], reverse=True
-    )[:3])
-
-    # If kid is struggling, drop difficulty by 1 to rebuild confidence
-    effective_difficulty = max(1, current_difficulty - 1) if consecutive_failures >= 3 else current_difficulty
-
-    # Words due for spaced repetition review take priority
+    words = _load_word_bank()
     due_for_review = set(get_words_due_for_review(student_id))
-    review_words = [w for w in all_words if w["word"] in due_for_review]
 
-    # Score and rank unseen words
-    candidates = [w for w in all_words if w["word"] not in seen_words]
-    scored = []
-    for w in candidates:
+    seen = profile["words"]
+    struggles = profile["phonics_struggles"]
+    theme_prefs = profile["theme_preferences"]
+    target_difficulty = profile["current_difficulty"]
+
+    # Encourage easier words if frustrated
+    if profile["consecutive_failures"] >= 3:
+        target_difficulty = max(1, target_difficulty - 1)
+
+    candidates = []
+    for w in words:
+        word = w["word"]
+        # Skip mastered words (unless due for review)
+        if word in seen and seen[word]["mastered"] and word not in due_for_review:
+            continue
+
         score = 0
 
-        # Difficulty match
-        diff_gap = abs(w["difficulty"] - effective_difficulty)
-        score += max(0, 5 - diff_gap * 2)
+        # Priority 1: spaced repetition review
+        if word in due_for_review:
+            score += 40
 
-        # Phonics overlap with struggles (target weak spots)
-        overlap = len(set(w["phonics"]) & top_struggles)
-        score += overlap * 3
+        # Priority 2: targets phonics weak spots
+        for tag in w["phonics"]:
+            if tag in struggles:
+                score += struggles[tag] * 5
 
-        # Theme preference bonus
-        if w["theme"] in preferred_themes:
-            score += 2
+        # Priority 3: preferred theme
+        score += theme_prefs.get(w["theme"], 0) * 2
 
-        scored.append((score, w))
+        # Priority 4: appropriate difficulty (closer = higher score)
+        score += max(0, 10 - abs(w["difficulty"] - target_difficulty) * 3)
 
-    scored.sort(key=lambda x: x[0], reverse=True)
-    new_words = [w for _, w in scored]
+        candidates.append((score, w))
 
-    # Combine: review words first, then new words
-    combined = review_words + new_words
-    seen = set()
-    result = []
-    for w in combined:
-        if w["word"] not in seen:
-            seen.add(w["word"])
-            result.append(w)
-        if len(result) == count:
-            break
-
-    return result
+    candidates.sort(key=lambda x: x[0], reverse=True)
+    return [w for _, w in candidates[:count]]
 
 
 def get_phonics_neighbors(word: str) -> list[dict]:
-    """Return words that share phonics patterns with the given word."""
     all_words = _load_word_bank()
     target = next((w for w in all_words if w["word"] == word), None)
     if not target:
         return []
-
     target_phonics = set(target["phonics"])
-    neighbors = [
+    return [
         w for w in all_words
-        if w["word"] != word and set(w["phonics"]) & target_phonics
+        if w["word"] != word and target_phonics & set(w["phonics"])
     ]
-    neighbors.sort(key=lambda w: len(set(w["phonics"]) & target_phonics), reverse=True)
-    return neighbors[:5]
