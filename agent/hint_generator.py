@@ -1,88 +1,75 @@
-import boto3
 import json
-import os
+import random
+import boto3
+from typing import Optional
+from botocore.exceptions import BotoCoreError, ClientError
 
-# Hint templates as fallback when Bedrock is unavailable
-HINT_TEMPLATES = {
-    "animals": "This is a living creature. It has {letters} letters. 🐾",
-    "food": "You can eat this! It has {letters} letters. 🍽️",
-    "nature": "You can find this outside in nature. It has {letters} letters. 🌿",
-    "home": "You might find this in your house. It has {letters} letters. 🏠",
-    "colors": "This is something you can see with your eyes. It has {letters} letters. 🎨",
-    "actions": "This is something you can do with your body. It has {letters} letters. 🏃",
-    "transport": "People use this to travel from place to place. It has {letters} letters. 🚗",
-    "body": "This is a part of your body. It has {letters} letters. 🧍",
-    "clothing": "You wear this on your body. It has {letters} letters. 👕",
-    "emotions": "This describes how you feel. It has {letters} letters. 😊",
-    "descriptive": "This word describes something. It has {letters} letters. ✨",
-    "objects": "This is a thing you can touch or use. It has {letters} letters. 📦",
-    "shapes": "This is a shape or form. It has {letters} letters. 🔷",
-    "time": "This is related to time or the day. It has {letters} letters. ⏰",
-    "question": "This is a word used to ask questions. It has {letters} letters. ❓"
+THEME_HINTS = {
+    "animals": "It's a living creature 🐾",
+    "food": "You can eat or drink it 🍎",
+    "nature": "You can find it outside in nature 🌿",
+    "home": "You'd find this inside a house 🏠",
+    "colors": "It describes a color 🎨",
+    "actions": "It's something you can do 🏃",
+    "transport": "It helps you get from place to place 🚗",
+    "body": "It's part of your body 🧍",
+    "clothing": "You wear it 👕",
+    "emotions": "It describes a feeling 😊",
+    "descriptive": "It describes something 📝",
+    "objects": "It's a thing you can touch 📦",
+    "shapes": "It's a shape or form 🔷",
+    "time": "It's related to time ⏰",
+    "question": "It's a question word ❓",
 }
 
-FIRST_LETTER_HINT = "The first letter is '{letter}'. Can you figure out the rest?"
 
-
-def get_hint(word: str, theme: str, attempt_number: int, use_bedrock: bool = True) -> str:
-    """
-    Returns a progressive hint based on attempt number.
-    attempt 1 -> theme-based hint
-    attempt 2 -> first letter hint
-    attempt 3 -> reveal first + last letter
-    """
+def get_hint(word: str, theme: str, attempt_number: int, use_bedrock: bool = False) -> str:
     if attempt_number == 1:
-        return _theme_hint(word, theme, use_bedrock)
+        hint = _theme_hint(theme)
+        if use_bedrock:
+            hint = _bedrock_hint(word, theme) or hint
     elif attempt_number == 2:
-        return FIRST_LETTER_HINT.format(letter=word[0].upper())
+        hint = f"It starts with the letter '{word[0].upper()}'"
     else:
-        return f"The word starts with '{word[0].upper()}' and ends with '{word[-1].upper()}'. It has {len(word)} letters."
+        hint = f"It starts with '{word[0].upper()}' and ends with '{word[-1].upper()}'"
+    return hint
 
 
-def _theme_hint(word: str, theme: str, use_bedrock: bool) -> str:
-    if use_bedrock:
-        try:
-            return _bedrock_hint(word, theme)
-        except Exception:
-            pass
-    template = HINT_TEMPLATES.get(theme, "This word has {letters} letters. Think carefully! 🤔")
-    return template.format(letters=len(word))
-
-
-def _bedrock_hint(word: str, theme: str) -> str:
-    client = boto3.client("bedrock-runtime", region_name=os.getenv("AWS_REGION", "us-east-1"))
-    prompt = (
-        f"You are a friendly teacher helping a young child (age 5-10) guess the word '{word}'. "
-        f"The word belongs to the theme: {theme}. "
-        "Give ONE short, fun, child-friendly hint WITHOUT saying the word. "
-        "Use simple language and add one relevant emoji. Max 15 words."
-    )
-    body = json.dumps({
-        "anthropic_version": "bedrock-2023-05-31",
-        "max_tokens": 60,
-        "messages": [{"role": "user", "content": prompt}]
-    })
-    response = client.invoke_model(
-        modelId="anthropic.claude-3-haiku-20240307-v1:0",
-        body=body,
-        contentType="application/json",
-        accept="application/json"
-    )
-    result = json.loads(response["body"].read())
-    return result["content"][0]["text"].strip()
+ENCOURAGEMENT_SUCCESS = ["Amazing!", "Fantastic!", "Brilliant!", "Wow, great job!"]
+ENCOURAGEMENT_STRUGGLE = [
+    "Keep trying, you're doing great!",
+    "Almost there, don't give up!",
+    "That's a tricky one — let's try again!",
+]
+ENCOURAGEMENT_FRUSTRATED = "That one's tricky! Let's try an easier word. 💪"
 
 
 def get_encouragement(success: bool, consecutive_failures: int) -> str:
+    if consecutive_failures >= 3:
+        return ENCOURAGEMENT_FRUSTRATED
     if success:
-        messages = [
-            "Amazing job! You got it! 🌟",
-            "Fantastic! You're a spelling star! ⭐",
-            "Brilliant! Keep it up! 🎉",
-            "Wow, you nailed it! 🏆"
-        ]
-        import random
-        return random.choice(messages)
-    else:
-        if consecutive_failures >= 3:
-            return "That's a tricky one! Let's try an easier word first. You've got this! 💪"
-        return "Not quite! Take another look at the hint. You can do it! 🤗"
+        return random.choice(ENCOURAGEMENT_SUCCESS)
+    return random.choice(ENCOURAGEMENT_STRUGGLE)
+
+
+def _theme_hint(theme: str) -> str:
+    return THEME_HINTS.get(theme, f"It belongs to the '{theme}' category")
+
+
+def _bedrock_hint(word: str, theme: str) -> Optional[str]:
+    try:
+        client = boto3.client("bedrock-runtime")
+        prompt = (
+            f"Give a single child-friendly hint for the word '{word}' (theme: {theme}). "
+            "One sentence only. Do not say the word."
+        )
+        body = json.dumps({
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 60,
+            "messages": [{"role": "user", "content": prompt}]
+        })
+        response = client.invoke_model(modelId="anthropic.claude-3-haiku-20240307-v1:0", body=body)
+        result = json.loads(response["body"].read())
+        return result["content"][0]["text"].strip()
+    except (BotoCoreError, ClientError, Exception):
+        return None
