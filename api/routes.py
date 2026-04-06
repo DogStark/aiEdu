@@ -67,17 +67,13 @@ def get_recommendations(req: RecommendRequest):
 
 @router.post("/hint")
 def get_word_hint(req: HintRequest):
-    """Get a progressive hint for a word based on attempt number."""
     hint = get_hint(req.word, req.theme, req.attempt_number, req.use_bedrock)
     return {"word": req.word, "attempt": req.attempt_number, "hint": hint}
 
 
 @router.post("/story")
 def create_story(req: StoryRequest):
-    """Generate a short story using words the student just learned."""
-    profile = load_profile(req.student_id)
-    student_name = req.student_id  # Can be replaced with actual name from profile
-    story = generate_story(req.words, student_name, req.use_bedrock)
+    story = generate_story(req.words, req.student_id, req.use_bedrock)
     return {"student_id": req.student_id, "words_used": req.words, "story": story}
 
 
