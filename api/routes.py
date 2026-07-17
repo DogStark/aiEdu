@@ -7,6 +7,7 @@ from agent.recommender import recommend_words, get_phonics_neighbors
 from agent.hint_generator import get_hint, get_encouragement
 from agent.story_mode import generate_story
 from dashboard.report import generate_report, export_report_json
+from dashboard.experiment_report import compute_variant_metrics, export_experiment_report_json, DEFAULT_RETENTION_DAYS
 
 router = APIRouter(prefix="/api/v1")
 
@@ -114,3 +115,18 @@ def phonics_neighbors(word: str):
     """Get words that share phonics patterns with the given word."""
     neighbors = get_phonics_neighbors(word)
     return {"word": word, "phonics_neighbors": neighbors}
+
+
+@router.get("/experiments/report")
+def get_experiment_report(retention_days: int = DEFAULT_RETENTION_DAYS):
+    """Per-variant retention, time-to-mastery, and session-engagement
+    metrics for the spaced-repetition experiment (see agent/experiments.py).
+    Measurement only — does not declare a winning variant."""
+    return compute_variant_metrics(retention_days)
+
+
+@router.post("/experiments/report/export")
+def export_experiment_report(retention_days: int = DEFAULT_RETENTION_DAYS):
+    """Export the experiment metrics report as a JSON file."""
+    path = export_experiment_report_json(retention_days=retention_days)
+    return {"exported_to": path}
