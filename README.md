@@ -10,6 +10,7 @@ An AI-powered backend agent that plugs into the [WordBloc](https://wordbloc.verc
 |---|---|
 | **Learning Profiler** | Tracks every word attempt, success rate, time taken, and phonics patterns per student |
 | **Adaptive Difficulty** | Auto-adjusts word difficulty in real-time based on session performance |
+| **Onboarding Diagnostic** | Short adaptive diagnostic (max 10 questions) that calibrates starting difficulty and estimates initial phonics struggles |
 | **Word Recommender** | Suggests next words based on phonics gaps, preferred themes, and difficulty level |
 | **Spaced Repetition** | SM-2 algorithm resurfaces forgotten words at optimal intervals (1 → 3 → 7 → 14 days) |
 | **Struggle Detection** | Identifies phonics patterns the kid consistently gets wrong (e.g. digraph-sh, silent-gh) |
@@ -73,6 +74,62 @@ API docs available at: `http://localhost:8000/docs`
 ---
 
 ## API Endpoints
+
+### Onboarding Diagnostic
+
+To calibrate a new student's starting difficulty and phonics struggles without polluting their spaced repetition schedule, the diagnostic flow runs for a maximum of 10 adaptive questions.
+
+#### 1. Get Next Diagnostic Question
+```
+POST /api/v1/onboarding/diagnostic/next
+```
+```json
+{
+  "student_id": "student_001"
+}
+```
+Response:
+```json
+{
+  "completed": false,
+  "student_id": "student_001",
+  "question_index": 1,
+  "total_questions": 10,
+  "active_question": {
+    "word": "cake",
+    "difficulty": 3,
+    "phonics": ["CVCe", "long-a"],
+    "theme": "food"
+  }
+}
+```
+
+#### 2. Submit Diagnostic Answer
+```
+POST /api/v1/onboarding/diagnostic/submit
+```
+```json
+{
+  "student_id": "student_001",
+  "word": "cake",
+  "success": true,
+  "time_taken_seconds": 4.5
+}
+```
+Response:
+```json
+{
+  "completed": false,
+  "student_id": "student_001",
+  "word": "cake",
+  "success": true,
+  "question_index": 1,
+  "next_difficulty": 4,
+  "starting_difficulty": null,
+  "initial_phonics_struggles": null
+}
+```
+If completed (at 10 questions), `completed` becomes `true` and the profile's `current_difficulty` and `phonics_struggles` are updated using the calibration result, while keeping the SM-2 learning schedule unpolluted.
 
 ### Record a Word Attempt
 ```

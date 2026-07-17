@@ -6,17 +6,21 @@ from unittest.mock import patch, MagicMock
 
 # Use a temp profile dir for tests
 TEST_PROFILES_DIR = "/tmp/test_student_profiles"
+TEST_DIAGNOSTIC_DIR = "/tmp/test_diagnostic_sessions"
 
 @pytest.fixture(autouse=True)
 def clean_profiles():
     os.makedirs(TEST_PROFILES_DIR, exist_ok=True)
+    os.makedirs(TEST_DIAGNOSTIC_DIR, exist_ok=True)
     yield
     shutil.rmtree(TEST_PROFILES_DIR, ignore_errors=True)
+    shutil.rmtree(TEST_DIAGNOSTIC_DIR, ignore_errors=True)
 
 
 @pytest.fixture(autouse=True)
 def patch_profiles_dir(monkeypatch):
     monkeypatch.setattr("agent.profiler.PROFILES_DIR", TEST_PROFILES_DIR)
+    monkeypatch.setattr("agent.diagnostic.DIAGNOSTIC_DIR", TEST_DIAGNOSTIC_DIR)
 
 
 # ── Profiler Tests ──────────────────────────────────────────────────────────
@@ -261,3 +265,130 @@ class TestAPIRoutes:
         r = client.get("/api/v1/neighbors/cat")
         assert r.status_code == 200
         assert "phonics_neighbors" in r.json()
+
+
+# ── Onboarding Diagnostic Tests ─────────────────────────────────────────────
+
+class TestOnboardingDiagnostic:
+    def test_diagnostic_starting_state(self):
+        from agent.diagnostic import get_next_diagnostic_question
+        res = get_next_diagnostic_question("student_diag_1")
+        assert res["completed"] is False
+        assert res["question_index"] == 1
+        assert res["total_questions"] == 10
+        assert "active_question" in res
+        assert res["active_question"]["difficulty"] == 3
+
+    def test_diagnostic_adaptive_stepping(self):
+        from agent.diagnostic import get_next_diagnostic_question, submit_diagnostic_answer
+        
+        # Start diagnostic
+        res = get_next_diagnostic_question("student_diag_2")
+        word = res["active_question"]["word"]
+        
+        # Submit correct fast -> difficulty should increase to 4
+        res_submit = submit_diagnostic_answer("student_diag_2", word, success=True, time_taken_seconds=3.0)
+        assert res_submit["completed"] is False
+        assert res_submit["next_difficulty"] == 4
+        
+        # Next question
+        res_next = get_next_diagnostic_question("student_diag_2")
+        assert res_next["active_question"]["difficulty"] == 4
+        word2 = res_next["active_question"]["word"]
+        
+        # Submit correct slow -> difficulty stays 4
+        res_submit2 = submit_diagnostic_answer("student_diag_2", word2, success=True, time_taken_seconds=12.0)
+        assert res_submit2["next_difficulty"] == 4
+        
+        # Next question
+        res_next2 = get_next_diagnostic_question("student_diag_2")
+        assert res_next2["active_question"]["difficulty"] == 4
+        word3 = res_next2["active_question"]["word"]
+        
+        # Submit incorrect -> difficulty should decrease to 3
+        res_submit3 = submit_diagnostic_answer("student_diag_2", word3, success=False, time_taken_seconds=5.0)
+        assert res_submit3["next_difficulty"] == 3
+
+    def test_strong_reader_simulation(self):
+        from agent.diagnostic import get_next_diagnostic_question, submit_diagnostic_answer
+        from agent.profiler import load_profile
+        
+        student_id = "strong_reader"
+        for i in range(10):
+            res = get_next_diagnostic_question(student_id)
+            assert res["completed"] is False
+            word = res["active_question"]["word"]
+            res_submit = submit_diagnostic_answer(student_id, word, success=True, time_taken_seconds=2.0)
+            if i < 9:
+                assert res_submit["completed"] is False
+            else:
+                assert res_submit["completed"] is True
+                assert res_submit["starting_difficulty"] == 5
+                assert res_submit["initial_phonics_struggles"] == {}
+                
+        # Assert student profile is correctly calibrated
+        profile = load_profile(student_id)
+        assert profile["current_difficulty"] == 5
+        assert profile["phonics_struggles"] == {}
+        # Ensure words dictionary (SM-2 state) is empty to avoid pollution
+        assert profile["words"] == {}
+        # Ensure diagnostic history is populated
+        assert len(profile["diagnostic_history"]) == 10
+
+    def test_struggling_reader_simulation(self):
+        from agent.diagnostic import get_next_diagnostic_question, submit_diagnostic_answer
+        from agent.profiler import load_profile
+        
+        student_id = "struggling_reader"
+        for i in range(10):
+            res = get_next_diagnostic_question(student_id)
+            assert res["completed"] is False
+            word = res["active_question"]["word"]
+            res_submit = submit_diagnostic_answer(student_id, word, success=False, time_taken_seconds=15.0)
+            if i < 9:
+                assert res_submit["completed"] is False
+            else:
+                assert res_submit["completed"] is True
+                assert res_submit["starting_difficulty"] == 1
+                assert len(res_submit["initial_phonics_struggles"]) > 0
+                
+        # Assert student profile is correctly calibrated
+        profile = load_profile(student_id)
+        assert profile["current_difficulty"] == 1
+        assert len(profile["phonics_struggles"]) > 0
+        # Ensure words dictionary (SM-2 state) is empty to avoid pollution
+        assert profile["words"] == {}
+        # Ensure diagnostic history is populated
+        assert len(profile["diagnostic_history"]) == 10
+
+
+class TestDiagnosticAPIRoutes:
+    @pytest.fixture
+    def client(self):
+        from fastapi.testclient import TestClient
+        from main import app
+        return TestClient(app)
+
+    def test_diagnostic_api_flow(self, client):
+        student_id = "api_diagnostic_student"
+        
+        # Call next to start
+        r_next = client.post("/api/v1/onboarding/diagnostic/next", json={"student_id": student_id})
+        assert r_next.status_code == 200
+        data_next = r_next.json()
+        assert data_next["completed"] is False
+        assert data_next["question_index"] == 1
+        word = data_next["active_question"]["word"]
+        
+        # Submit response
+        r_submit = client.post("/api/v1/onboarding/diagnostic/submit", json={
+            "student_id": student_id,
+            "word": word,
+            "success": True,
+            "time_taken_seconds": 4.5
+        })
+        assert r_submit.status_code == 200
+        data_submit = r_submit.json()
+        assert data_submit["completed"] is False
+        assert data_submit["word"] == word
+        assert data_submit["next_difficulty"] == 4

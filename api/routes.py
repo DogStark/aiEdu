@@ -6,6 +6,7 @@ from agent.profiler import record_attempt, get_struggle_summary, get_words_due_f
 from agent.recommender import recommend_words, get_phonics_neighbors
 from agent.hint_generator import get_hint, get_encouragement
 from agent.story_mode import generate_story
+from agent.diagnostic import get_next_diagnostic_question, submit_diagnostic_answer
 from dashboard.report import generate_report, export_report_json
 
 router = APIRouter(prefix="/api/v1")
@@ -36,6 +37,15 @@ class StoryRequest(BaseModel):
 class RecommendRequest(BaseModel):
     student_id: str
     count: Optional[int] = 5
+
+class DiagnosticNextRequest(BaseModel):
+    student_id: str
+
+class DiagnosticSubmitRequest(BaseModel):
+    student_id: str
+    word: str
+    success: bool
+    time_taken_seconds: float
 
 
 # --- Endpoints ---
@@ -114,3 +124,27 @@ def phonics_neighbors(word: str):
     """Get words that share phonics patterns with the given word."""
     neighbors = get_phonics_neighbors(word)
     return {"word": word, "phonics_neighbors": neighbors}
+
+
+@router.post("/onboarding/diagnostic/next")
+def get_next_question(req: DiagnosticNextRequest):
+    """Retrieve the next word/question for the onboarding diagnostic test."""
+    try:
+        result = get_next_diagnostic_question(req.student_id)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/onboarding/diagnostic/submit")
+def submit_answer(req: DiagnosticSubmitRequest):
+    """Submit the answer to the current diagnostic word and progress the test."""
+    try:
+        result = submit_diagnostic_answer(
+            req.student_id, req.word, req.success, req.time_taken_seconds
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
