@@ -4,38 +4,83 @@ import json
 import shutil
 from unittest.mock import patch, MagicMock
 
-# Use a temp profile dir for tests
+# Use isolated storage roots for tests
 TEST_PROFILES_DIR = "/tmp/test_student_profiles"
 TEST_DIAGNOSTIC_DIR = "/tmp/test_diagnostic_sessions"
+TEST_REPORTS_DIR = "/tmp/test_student_reports"
+TEST_AUDIO_CACHE_DIR = "/tmp/test_audio_cache"
+
+CONSENT_METADATA = {
+    "guardian_id": "guardian_test_001",
+    "relationship": "parent",
+    "consent_given": True,
+    "consent_method": "verified_test_form",
+    "privacy_policy_version": "test-v1",
+    "consented_at": "2025-01-01T00:00:00+00:00",
+}
+
+
+def create_consented_profile(student_id):
+    from agent.profiler import load_profile
+
+    return load_profile(student_id, consent_metadata=CONSENT_METADATA)
+
 
 @pytest.fixture(autouse=True)
 def clean_profiles():
-    os.makedirs(TEST_PROFILES_DIR, exist_ok=True)
-    os.makedirs(TEST_DIAGNOSTIC_DIR, exist_ok=True)
+    roots = (
+        TEST_PROFILES_DIR,
+        TEST_DIAGNOSTIC_DIR,
+        TEST_REPORTS_DIR,
+        TEST_AUDIO_CACHE_DIR,
+    )
+    for root in roots:
+        os.makedirs(root, exist_ok=True)
     yield
-    shutil.rmtree(TEST_PROFILES_DIR, ignore_errors=True)
-    shutil.rmtree(TEST_DIAGNOSTIC_DIR, ignore_errors=True)
+    for root in roots:
+        shutil.rmtree(root, ignore_errors=True)
 
 
 @pytest.fixture(autouse=True)
 def patch_profiles_dir(monkeypatch):
     monkeypatch.setattr("agent.profiler.PROFILES_DIR", TEST_PROFILES_DIR)
     monkeypatch.setattr("agent.diagnostic.DIAGNOSTIC_DIR", TEST_DIAGNOSTIC_DIR)
+    monkeypatch.setattr("dashboard.report.REPORTS_DIR", TEST_REPORTS_DIR)
+    monkeypatch.setattr("agent.privacy.AUDIO_CACHE_DIR", TEST_AUDIO_CACHE_DIR)
 
 
 # ── Profiler Tests ──────────────────────────────────────────────────────────
 
 class TestProfiler:
-    def test_load_new_profile(self):
-        from agent.profiler import load_profile
-        p = load_profile("student_001")
+    def test_load_new_profile_requires_consent(self):
+        from agent.profiler import ConsentRequiredError, load_profile
+
+        with pytest.raises(ConsentRequiredError):
+            load_profile("student_001")
+        assert not os.path.exists(os.path.join(TEST_PROFILES_DIR, "student_001.json"))
+
+        p = load_profile("student_001", consent_metadata=CONSENT_METADATA)
         assert p["student_id"] == "student_001"
         assert p["current_difficulty"] == 1
         assert p["words"] == {}
+        assert p["consent"]["consent_given"] is True
+
+    def test_invalid_consent_is_rejected_without_writing_profile(self):
+        from agent.profiler import InvalidConsentError, load_profile
+
+        invalid_consent = {**CONSENT_METADATA, "consent_given": False}
+        with pytest.raises(InvalidConsentError):
+            load_profile("invalid_consent", consent_metadata=invalid_consent)
+        assert not os.path.exists(
+            os.path.join(TEST_PROFILES_DIR, "invalid_consent.json")
+        )
 
     def test_record_success(self):
         from agent.profiler import record_attempt, load_profile
-        record_attempt("student_001", "cat", True, 5.0, ["CVC", "short-a"], "animals", 1)
+        record_attempt(
+            "student_001", "cat", True, 5.0, ["CVC", "short-a"],
+            "animals", 1, consent_metadata=CONSENT_METADATA
+        )
         p = load_profile("student_001")
         assert "cat" in p["words"]
         assert p["words"]["cat"]["successes"] == 1
@@ -43,13 +88,17 @@ class TestProfiler:
 
     def test_record_failure_tracks_phonics(self):
         from agent.profiler import record_attempt, load_profile
-        record_attempt("student_001", "ship", False, 15.0, ["digraph-sh"], "transport", 2)
+        record_attempt(
+            "student_001", "ship", False, 15.0, ["digraph-sh"],
+            "transport", 2, consent_metadata=CONSENT_METADATA
+        )
         p = load_profile("student_001")
         assert p["phonics_struggles"].get("digraph-sh", 0) >= 1
         assert p["consecutive_failures"] == 1
 
     def test_difficulty_increases_on_high_success(self):
         from agent.profiler import record_attempt, load_profile
+        create_consented_profile("student_001")
         for i in range(10):
             record_attempt("student_001", f"word{i}", True, 4.0, ["CVC"], "animals", 1)
         p = load_profile("student_001")
@@ -60,7 +109,9 @@ class TestProfiler:
         # First set difficulty to 3
         p_path = os.path.join(TEST_PROFILES_DIR, "student_002.json")
         profile = {
-            "student_id": "student_002", "created_at": "2024-01-01",
+            "student_id": "student_002", "created_at": "2024-01-01T00:00:00+00:00",
+            "updated_at": "2024-01-01T00:00:00+00:00",
+            "consent": CONSENT_METADATA,
             "current_difficulty": 3, "total_sessions": 0,
             "words": {}, "phonics_struggles": {}, "theme_preferences": {},
             "consecutive_failures": 0, "session_history": []
@@ -75,12 +126,16 @@ class TestProfiler:
 
     def test_spaced_repetition_sets_next_review(self):
         from agent.profiler import record_attempt, load_profile
-        record_attempt("student_001", "cat", True, 5.0, ["CVC"], "animals", 1)
+        record_attempt(
+            "student_001", "cat", True, 5.0, ["CVC"], "animals", 1,
+            consent_metadata=CONSENT_METADATA
+        )
         p = load_profile("student_001")
         assert p["words"]["cat"]["next_review"] is not None
 
     def test_get_struggle_summary(self):
         from agent.profiler import record_attempt, get_struggle_summary
+        create_consented_profile("student_001")
         record_attempt("student_001", "ship", False, 20.0, ["digraph-sh"], "transport", 2)
         record_attempt("student_001", "chip", False, 18.0, ["digraph-ch"], "food", 2)
         summary = get_struggle_summary("student_001")
@@ -93,11 +148,13 @@ class TestProfiler:
 class TestRecommender:
     def test_recommend_returns_correct_count(self):
         from agent.recommender import recommend_words
+        create_consented_profile("new_student")
         words = recommend_words("new_student", count=3)
         assert len(words) <= 3
 
     def test_recommend_respects_difficulty(self):
         from agent.recommender import recommend_words
+        create_consented_profile("new_student")
         words = recommend_words("new_student", count=5)
         # New student starts at difficulty 1, all recommendations should be close
         for w in words:
@@ -116,6 +173,7 @@ class TestRecommender:
 
     def test_recommend_prioritizes_review_words(self, monkeypatch):
         from agent import recommender
+        create_consented_profile("student_001")
         monkeypatch.setattr(recommender, "get_words_due_for_review", lambda sid: ["cat"])
         words = recommender.recommend_words("student_001", count=5)
         word_names = [w["word"] for w in words]
@@ -179,12 +237,14 @@ class TestStoryMode:
 class TestDashboardReport:
     def test_report_no_activity(self):
         from dashboard.report import generate_report
+        create_consented_profile("ghost_student")
         report = generate_report("ghost_student")
         assert "message" in report
 
     def test_report_with_activity(self):
         from agent.profiler import record_attempt
         from dashboard.report import generate_report
+        create_consented_profile("student_rep")
         record_attempt("student_rep", "cat", True, 5.0, ["CVC"], "animals", 1)
         record_attempt("student_rep", "dog", False, 20.0, ["CVC"], "animals", 1)
         report = generate_report("student_rep")
@@ -195,6 +255,7 @@ class TestDashboardReport:
     def test_report_identifies_struggling_words(self):
         from agent.profiler import record_attempt
         from dashboard.report import generate_report
+        create_consented_profile("student_str")
         for _ in range(4):
             record_attempt("student_str", "night", False, 25.0, ["silent-gh"], "time", 3)
         report = generate_report("student_str")
@@ -203,8 +264,9 @@ class TestDashboardReport:
     def test_export_report_creates_file(self, tmp_path):
         from agent.profiler import record_attempt
         from dashboard.report import export_report_json
+        create_consented_profile("student_exp")
         record_attempt("student_exp", "cat", True, 5.0, ["CVC"], "animals", 1)
-        out = str(tmp_path / "report.json")
+        out = os.path.join(TEST_REPORTS_DIR, "student_exp_report.json")
         path = export_report_json("student_exp", output_path=out)
         assert os.path.exists(path)
         with open(path) as f:
@@ -234,13 +296,17 @@ class TestAPIRoutes:
             "time_taken_seconds": 6.0,
             "phonics_tags": ["CVC", "short-a"],
             "theme": "animals",
-            "difficulty": 1
+            "difficulty": 1,
+            "consent_metadata": CONSENT_METADATA
         })
         assert r.status_code == 200
         assert "encouragement" in r.json()
 
     def test_get_recommendations(self, client):
-        r = client.post("/api/v1/recommend", json={"student_id": "api_student", "count": 3})
+        r = client.post("/api/v1/recommend", json={
+            "student_id": "api_student", "count": 3,
+            "consent_metadata": CONSENT_METADATA
+        })
         assert r.status_code == 200
         assert len(r.json()["recommended_words"]) <= 3
 
@@ -253,11 +319,16 @@ class TestAPIRoutes:
         assert "hint" in r.json()
 
     def test_get_profile(self, client):
+        created = client.post("/api/v1/profile", json={
+            "student_id": "api_student", "consent_metadata": CONSENT_METADATA
+        })
+        assert created.status_code == 201
         r = client.get("/api/v1/profile/api_student")
         assert r.status_code == 200
         assert "student_id" in r.json()
 
     def test_get_report(self, client):
+        create_consented_profile("api_student")
         r = client.get("/api/v1/report/api_student")
         assert r.status_code == 200
 
@@ -272,7 +343,9 @@ class TestAPIRoutes:
 class TestOnboardingDiagnostic:
     def test_diagnostic_starting_state(self):
         from agent.diagnostic import get_next_diagnostic_question
-        res = get_next_diagnostic_question("student_diag_1")
+        res = get_next_diagnostic_question(
+            "student_diag_1", consent_metadata=CONSENT_METADATA
+        )
         assert res["completed"] is False
         assert res["question_index"] == 1
         assert res["total_questions"] == 10
@@ -283,7 +356,9 @@ class TestOnboardingDiagnostic:
         from agent.diagnostic import get_next_diagnostic_question, submit_diagnostic_answer
         
         # Start diagnostic
-        res = get_next_diagnostic_question("student_diag_2")
+        res = get_next_diagnostic_question(
+            "student_diag_2", consent_metadata=CONSENT_METADATA
+        )
         word = res["active_question"]["word"]
         
         # Submit correct fast -> difficulty should increase to 4
@@ -315,7 +390,10 @@ class TestOnboardingDiagnostic:
         
         student_id = "strong_reader"
         for i in range(10):
-            res = get_next_diagnostic_question(student_id)
+            res = get_next_diagnostic_question(
+                student_id,
+                consent_metadata=CONSENT_METADATA if i == 0 else None,
+            )
             assert res["completed"] is False
             word = res["active_question"]["word"]
             res_submit = submit_diagnostic_answer(student_id, word, success=True, time_taken_seconds=2.0)
@@ -341,7 +419,10 @@ class TestOnboardingDiagnostic:
         
         student_id = "struggling_reader"
         for i in range(10):
-            res = get_next_diagnostic_question(student_id)
+            res = get_next_diagnostic_question(
+                student_id,
+                consent_metadata=CONSENT_METADATA if i == 0 else None,
+            )
             assert res["completed"] is False
             word = res["active_question"]["word"]
             res_submit = submit_diagnostic_answer(student_id, word, success=False, time_taken_seconds=15.0)
@@ -373,7 +454,10 @@ class TestDiagnosticAPIRoutes:
         student_id = "api_diagnostic_student"
         
         # Call next to start
-        r_next = client.post("/api/v1/onboarding/diagnostic/next", json={"student_id": student_id})
+        r_next = client.post("/api/v1/onboarding/diagnostic/next", json={
+            "student_id": student_id,
+            "consent_metadata": CONSENT_METADATA,
+        })
         assert r_next.status_code == 200
         data_next = r_next.json()
         assert data_next["completed"] is False
@@ -392,3 +476,131 @@ class TestDiagnosticAPIRoutes:
         assert data_submit["completed"] is False
         assert data_submit["word"] == word
         assert data_submit["next_difficulty"] == 4
+
+
+# ── Privacy / Data Lifecycle Tests ─────────────────────────────────────────
+
+class TestPrivacyLifecycle:
+    @pytest.fixture
+    def client(self):
+        from fastapi.testclient import TestClient
+        from main import app
+
+        return TestClient(app)
+
+    def test_api_rejects_profile_creation_without_consent(self, client):
+        r = client.post("/api/v1/attempt", json={
+            "student_id": "no_consent",
+            "word": "cat",
+            "success": True,
+            "time_taken_seconds": 3,
+            "phonics_tags": ["CVC"],
+            "theme": "animals",
+            "difficulty": 1,
+        })
+        assert r.status_code == 403
+        assert not os.path.exists(os.path.join(TEST_PROFILES_DIR, "no_consent.json"))
+
+        r = client.post("/api/v1/profile", json={"student_id": "no_consent"})
+        assert r.status_code == 422
+
+    def test_complete_portable_export(self, client):
+        import base64
+        from agent.diagnostic import get_next_diagnostic_question
+        from agent.profiler import record_attempt
+        from dashboard.report import export_report_json
+
+        student_id = "export_all"
+        create_consented_profile(student_id)
+        record_attempt(student_id, "cat", True, 3, ["CVC"], "animals", 1)
+        get_next_diagnostic_question(student_id)
+        export_report_json(student_id)
+        audio_dir = os.path.join(TEST_AUDIO_CACHE_DIR, student_id)
+        os.makedirs(audio_dir, exist_ok=True)
+        with open(os.path.join(audio_dir, "hint.mp3"), "wb") as f:
+            f.write(b"fake audio")
+
+        response = client.get(f"/api/v1/profile/{student_id}/export")
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["export_version"] == "1.0"
+        assert payload["data"]["profile"]["consent"]["consent_given"] is True
+        assert payload["data"]["profile"]["words"]["cat"]["attempts"] == 1
+        assert payload["data"]["diagnostic_session"]["student_id"] == student_id
+        assert len(payload["data"]["reports"]) == 1
+        assert base64.b64decode(payload["data"]["audio_cache"][0]["content"]) == b"fake audio"
+        assert payload["manifest"] == {
+            "profile_records": 1,
+            "diagnostic_session_records": 1,
+            "report_files": 1,
+            "audio_cache_files": 1,
+        }
+
+    def test_delete_removes_every_managed_artifact(self, client):
+        from agent.diagnostic import get_next_diagnostic_question
+        from dashboard.report import export_report_json
+
+        student_id = "delete_all"
+        create_consented_profile(student_id)
+        get_next_diagnostic_question(student_id)
+        export_report_json(student_id)
+        audio_dir = os.path.join(TEST_AUDIO_CACHE_DIR, student_id)
+        os.makedirs(audio_dir, exist_ok=True)
+        with open(os.path.join(audio_dir, "story.wav"), "wb") as f:
+            f.write(b"audio")
+        # Exercise the former report location too.
+        legacy_report = os.path.join(TEST_PROFILES_DIR, f"{student_id}_report.json")
+        with open(legacy_report, "w") as f:
+            json.dump({"student_id": student_id, "summary": {}}, f)
+
+        response = client.delete(f"/api/v1/profile/{student_id}")
+        assert response.status_code == 200
+        assert response.json()["deleted"] is True
+
+        assert not os.path.exists(os.path.join(TEST_PROFILES_DIR, f"{student_id}.json"))
+        assert not os.path.exists(os.path.join(TEST_DIAGNOSTIC_DIR, f"{student_id}.json"))
+        assert not os.path.exists(os.path.join(TEST_REPORTS_DIR, f"{student_id}_report.json"))
+        assert not os.path.exists(legacy_report)
+        assert not os.path.exists(audio_dir)
+        for root in (TEST_PROFILES_DIR, TEST_DIAGNOSTIC_DIR, TEST_REPORTS_DIR, TEST_AUDIO_CACHE_DIR):
+            assert not any(student_id in name for _, _, files in os.walk(root) for name in files)
+
+        # Deletion is idempotent and a deleted profile cannot be read.
+        assert client.delete(f"/api/v1/profile/{student_id}").json()["deleted"] is False
+        assert client.get(f"/api/v1/profile/{student_id}").status_code == 404
+
+    def test_retention_purges_inactive_profile_and_all_artifacts(self):
+        from datetime import datetime, timezone
+        from agent.diagnostic import get_next_diagnostic_question
+        from agent.privacy import purge_expired_profiles
+        from dashboard.report import export_report_json
+
+        student_id = "expired_student"
+        create_consented_profile(student_id)
+        get_next_diagnostic_question(student_id)
+        export_report_json(student_id)
+        audio_dir = os.path.join(TEST_AUDIO_CACHE_DIR, student_id)
+        os.makedirs(audio_dir, exist_ok=True)
+        with open(os.path.join(audio_dir, "old.mp3"), "wb") as f:
+            f.write(b"old")
+
+        profile_path = os.path.join(TEST_PROFILES_DIR, f"{student_id}.json")
+        with open(profile_path) as f:
+            profile = json.load(f)
+        profile["updated_at"] = "2024-01-01T00:00:00+00:00"
+        with open(profile_path, "w") as f:
+            json.dump(profile, f)
+
+        result = purge_expired_profiles(
+            retention_months=12,
+            now=datetime(2026, 7, 17, tzinfo=timezone.utc),
+        )
+        assert result["purged_student_ids"] == [student_id]
+        assert not os.path.exists(profile_path)
+        assert not os.path.exists(os.path.join(TEST_DIAGNOSTIC_DIR, f"{student_id}.json"))
+        assert not os.path.exists(os.path.join(TEST_REPORTS_DIR, f"{student_id}_report.json"))
+        assert not os.path.exists(audio_dir)
+
+    def test_student_id_cannot_escape_storage_root(self, client):
+        response = client.delete("/api/v1/profile/bad.id")
+        assert response.status_code == 400
