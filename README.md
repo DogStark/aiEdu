@@ -22,6 +22,7 @@ An AI-powered backend agent that plugs into the [WordBloc](https://wordbloc.verc
 | **Consent Gate** | Requires an auditable parent/guardian consent record before any student profile or diagnostic data is created |
 | **Portable Data Export** | Returns raw profile, consent, diagnostic, report, and cached-audio data in one versioned JSON document |
 | **Full Deletion & Retention** | Purges every managed student-data location on request or after configurable inactivity |
+| **Experimentation Framework** | Measures spaced-repetition variants against each other via deterministic A/B assignment (see below) |
 
 ---
 
@@ -34,20 +35,57 @@ eduAgent/
 │   ├── privacy.py           # Complete export, deletion, and retention controls
 │   ├── recommender.py       # Personalized word recommendation engine
 │   ├── hint_generator.py    # Progressive hints + AWS Bedrock AI hints
-│   └── story_mode.py        # Story generator using learned words (AWS Bedrock)
+│   ├── story_mode.py        # Story generator using learned words (AWS Bedrock)
+│   └── experiments.py       # Variant registry + deterministic student assignment
 ├── data/
 │   ├── word_bank.json       # 44 words tagged by difficulty, phonics, theme
 │   └── student_profiles/    # Per-student JSON profiles (auto-created)
 ├── api/
 │   └── routes.py            # FastAPI REST endpoints
 ├── dashboard/
-│   └── report.py            # Parent/teacher report generator
+│   ├── report.py            # Parent/teacher report generator
+│   └── experiment_report.py # Per-variant retention/time-to-mastery/engagement metrics
 ├── tests/
-│   └── test_agent.py        # Agent, API, consent, export, delete, and retention tests
+│   ├── test_agent.py        # Agent, API, consent, export, delete, and retention tests
+│   └── test_experiments.py  # Tests for the experimentation framework
 ├── PRIVACY.md               # Data inventory, lifecycle, limits, and legal open questions
 ├── main.py                  # FastAPI app entry point + periodic retention sweep
 └── requirements.txt
 ```
+
+---
+
+## Experimentation Framework
+
+Built to validate the spaced-repetition/difficulty algorithm (see `agent/profiler.py`) against alternative parameterizations, with honest measurement — not to declare a winner. This is **measurement infrastructure only**: it does not change `_update_spaced_repetition`, `_compute_difficulty`, or any of their thresholds. The pre-existing algorithm is registered as the `"control"` variant with parameters that are bit-identical to what was previously hardcoded, so control-bucketed students see zero behavior change (enforced by a regression test).
+
+### How it works
+
+- Every student is deterministically assigned to a variant the first time their profile is created, via a stable hash (`hashlib.sha256`, not Python's per-process-randomized `hash()`) of their `student_id` into a fixed bucket space. The assignment is persisted on the profile (`experiment_variant` field) and never recomputed.
+- `_update_spaced_repetition` and `_compute_difficulty` read their constants from the assigned variant's registry entry instead of using hardcoded literals — parameterization only, no logic changes.
+- `GET /api/v1/experiments/report` (optionally `?retention_days=N`) returns per-variant retention, time-to-mastery, and session-engagement metrics with sample sizes. `POST /api/v1/experiments/report/export` writes the same report to a JSON file.
+
+### Adding a variant
+
+The **entire** change lives in `agent/experiments.py` — no other file needs to change:
+
+```python
+VARIANT_REGISTRY["variant_b_example"] = {
+    "ef_min": 1.3, "ef_delta": 0.12, "ef_penalty_base": 0.08, "ef_penalty_scale": 0.02,
+    "failure_interval_days": 1, "first_success_interval_days": 3, "mastery_interval_days": 14,
+    "difficulty_window": 10, "difficulty_up_threshold": 0.8, "difficulty_down_threshold": 0.4,
+    "difficulty_min": 1, "difficulty_max": 5,
+}
+VARIANT_BUCKETS["variant_b_example"] = range(9000, 9500)  # carve out of unallocated headroom only
+```
+
+Never shrink or move an already-allocated variant's bucket range — that would silently reassign its existing students. Always carve new ranges out of currently-unallocated space. This is verified by a test that adds and removes a throwaway variant end-to-end and asserts no other module needed a change.
+
+### Known limitations
+
+- `attempt_log` on each profile grows unbounded for the profile's lifetime (needed to reconstruct session boundaries, since no session entity otherwise exists in this data model). Acceptable at this project's current scale (one small JSON file per student); a cap/rotation strategy is future work.
+- Retention is measured from the most recent recorded review at-or-after the N-day mark, not literally "the first" such review — see `dashboard/experiment_report.py` for the precise definition.
+- Time-to-mastery is measured in wall-clock days (`mastered_at - first_seen`), not review count, since attempt counts keep growing after mastery and aren't reset/snapshotted at the moment of mastery.
 
 ---
 
@@ -263,15 +301,25 @@ cache. The same deletion function is used by automatic retention.
 GET /api/v1/neighbors/{word}
 ```
 
+### Get Experiment Metrics Report
+```
+GET /api/v1/experiments/report?retention_days=30
+```
+
+### Export Experiment Metrics Report
+```
+POST /api/v1/experiments/report/export
+```
+
 ---
 
 ## Running Tests
 
 ```bash
-python3 -m pytest tests/test_agent.py -v
+python3 -m pytest tests/ -v
 ```
 
-Expected: **42 passed**
+Expected: **70 passed** (42 in `test_agent.py`, 28 in `test_experiments.py`)
 
 ---
 

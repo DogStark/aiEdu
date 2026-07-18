@@ -17,6 +17,7 @@ from agent.profiler import (
 from agent.recommender import get_phonics_neighbors, recommend_words
 from agent.story_mode import generate_story
 from dashboard.report import export_report_json, generate_report
+from dashboard.experiment_report import compute_variant_metrics, export_experiment_report_json, DEFAULT_RETENTION_DAYS
 
 router = APIRouter(prefix="/api/v1")
 
@@ -234,3 +235,18 @@ def submit_answer(req: DiagnosticSubmitRequest):
         raise
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/experiments/report")
+def get_experiment_report(retention_days: int = DEFAULT_RETENTION_DAYS):
+    """Per-variant retention, time-to-mastery, and session-engagement
+    metrics for the spaced-repetition experiment (see agent/experiments.py).
+    Measurement only — does not declare a winning variant."""
+    return compute_variant_metrics(retention_days)
+
+
+@router.post("/experiments/report/export")
+def export_experiment_report(retention_days: int = DEFAULT_RETENTION_DAYS):
+    """Export the experiment metrics report as a JSON file."""
+    path = export_experiment_report_json(retention_days=retention_days)
+    return {"exported_to": path}
