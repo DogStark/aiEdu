@@ -1,7 +1,9 @@
 import json
 import os
 import random
-from agent.profiler import load_profile, save_profile
+from typing import Mapping, Optional
+
+from agent.profiler import load_profile, save_profile, utc_now_iso
 
 WORD_BANK_PATH = os.path.join(os.path.dirname(__file__), "../data/word_bank.json")
 DIAGNOSTIC_DIR = os.path.join(os.path.dirname(__file__), "../data/diagnostic_sessions")
@@ -19,9 +21,13 @@ def load_diagnostic_session(student_id: str) -> dict:
         with open(path) as f:
             return json.load(f)
     
-    # Initialize a new session
+    # Initialize a new session. Callers must verify profile consent before this
+    # session is ever persisted.
+    now = utc_now_iso()
     return {
         "student_id": student_id,
+        "created_at": now,
+        "updated_at": now,
         "question_index": 0,
         "max_questions": 10,
         "current_difficulty": 3,
@@ -34,13 +40,23 @@ def load_diagnostic_session(student_id: str) -> dict:
 
 
 def save_diagnostic_session(session: dict):
+    # A persisted diagnostic is student data and therefore requires an existing,
+    # consented profile.
+    load_profile(session["student_id"], create_if_missing=False)
+    session["updated_at"] = utc_now_iso()
     os.makedirs(DIAGNOSTIC_DIR, exist_ok=True)
     path = os.path.join(DIAGNOSTIC_DIR, f"{session['student_id']}.json")
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(session, f, indent=2)
+        f.write("\n")
 
 
-def get_next_diagnostic_question(student_id: str) -> dict:
+def get_next_diagnostic_question(
+    student_id: str,
+    consent_metadata: Optional[Mapping[str, object]] = None,
+) -> dict:
+    # This must happen before a diagnostic session directory or file is created.
+    load_profile(student_id, consent_metadata=consent_metadata)
     session = load_diagnostic_session(student_id)
     
     if session["completed"]:
@@ -110,6 +126,8 @@ def get_next_diagnostic_question(student_id: str) -> dict:
 
 
 def submit_diagnostic_answer(student_id: str, word: str, success: bool, time_taken_seconds: float) -> dict:
+    # A diagnostic session cannot be submitted without its consented profile.
+    profile = load_profile(student_id, create_if_missing=False)
     session = load_diagnostic_session(student_id)
     
     if session["completed"]:
@@ -163,6 +181,8 @@ def submit_diagnostic_answer(student_id: str, word: str, success: bool, time_tak
         _finalize_diagnostic(session)
     else:
         save_diagnostic_session(session)
+        # A submitted answer is learning activity for retention purposes.
+        save_profile(profile)
         
     return {
         "completed": session["completed"],
@@ -191,7 +211,7 @@ def _finalize_diagnostic(session: dict):
     
     # Create or update student profile without polluting normal SM-2 review schedule
     student_id = session["student_id"]
-    profile = load_profile(student_id)
+    profile = load_profile(student_id, create_if_missing=False)
     profile["current_difficulty"] = starting_diff
     
     # Merge phonics struggles

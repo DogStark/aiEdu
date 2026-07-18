@@ -12,7 +12,7 @@ def _load_word_bank() -> list[dict]:
 
 
 def recommend_words(student_id: str, count: int = 5) -> list[dict]:
-    profile = load_profile(student_id)
+    profile = load_profile(student_id, create_if_missing=False)
     words = _load_word_bank()
     due_for_review = set(get_words_due_for_review(student_id))
 
