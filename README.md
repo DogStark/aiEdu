@@ -130,7 +130,57 @@ API docs available at: `http://localhost:8000/docs`
 
 ---
 
+## Authentication
+
+Every `/api/v1/*` route requires an API key. Each key belongs to an account
+(a parent or teacher backend) that owns a fixed set of `student_id`s — a
+teacher's classroom is simply that account's set of students. A caller can only
+read or write students it owns; anything else returns `403`. Requests with no
+key or an unknown key return `401`.
+
+Accounts live in `data/accounts.json`. Keys are stored only as a SHA-256 hash,
+so provision a new client by hashing its key and adding an entry:
+
+```bash
+python3 -c "import hashlib; print(hashlib.sha256(b'YOUR_RAW_KEY').hexdigest())"
+```
+
+```json
+{
+  "account_id": "parent_amy",
+  "role": "parent",
+  "api_key_sha256": "3088cdcb4617f6b3d519cc705de093eb6ead77401df4f618c3099e9bec6afd98",
+  "student_ids": ["student_001"]
+}
+```
+
+A frontend obtains its key out of band (e.g. from the parent/teacher portal)
+and sends it as a bearer token on every request:
+
+```http
+Authorization: Bearer <api_key>
+```
+
+The seed store ships with two keys for local testing:
+
+| Key | Owns |
+| --- | --- |
+| `wb_parent_amy_7Qk2Rf9xLm` | `student_001` |
+| `wb_teacher_lee_3Zt8Wp1yNc` | `student_010`, `student_011` |
+
+```bash
+curl -H "Authorization: Bearer wb_parent_amy_7Qk2Rf9xLm" \
+  http://localhost:8000/api/v1/profile/student_001
+```
+
+Rotate these before any non-local deployment.
+
+---
+
 ## API Endpoints
+
+All `/api/v1/*` requests below require the `Authorization: Bearer <api_key>`
+header described in [Authentication](#authentication).
 
 ### Create a Consented Student Profile
 
