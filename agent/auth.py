@@ -1,13 +1,3 @@
-"""API-key authentication and per-student authorization.
-
-Each client (a parent or teacher backend) is issued an API key. The key is
-stored only as a SHA-256 hash in ``data/accounts.json`` and maps to an account
-that owns a fixed set of ``student_id``s. A teacher's classroom is represented
-as that account's set of student IDs; there is no separate classroom entity.
-
-Callers send the raw key as ``Authorization: Bearer <key>``.
-"""
-
 import hashlib
 import json
 import os
