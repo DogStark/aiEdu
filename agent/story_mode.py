@@ -1,7 +1,12 @@
 import json
+import logging
 import boto3
 from typing import Optional
 from botocore.exceptions import BotoCoreError, ClientError
+
+from agent.log_config import get_logger
+
+logger = get_logger(__name__)
 
 
 def generate_story(words: list[str], student_name: str = "", use_bedrock: bool = False) -> str:
@@ -23,9 +28,9 @@ def _template_story(words: list[str], student_name: str = "") -> str:
 
 
 def _bedrock_story(words: list, student_name: str = "") -> Optional[str]:
+    word_list = ", ".join(words)
     try:
         client = boto3.client("bedrock-runtime")
-        word_list = ", ".join(words)
         prompt = (
             f"Write a fun 3-sentence story for a young child using these words: {word_list}. "
             "Use simple language. Include all the words naturally."
@@ -38,5 +43,17 @@ def _bedrock_story(words: list, student_name: str = "") -> Optional[str]:
         response = client.invoke_model(modelId="anthropic.claude-3-haiku-20240307-v1:0", body=body)
         result = json.loads(response["body"].read())
         return result["content"][0]["text"].strip()
-    except (BotoCoreError, ClientError, Exception):
+    except (BotoCoreError, ClientError) as exc:
+        logger.warning(
+            "Bedrock story generation unavailable for words %s: %s",
+            word_list, exc,
+            extra={"source_module": __name__, "source_function": "_bedrock_story"},
+        )
+        return None
+    except Exception as exc:
+        logger.error(
+            "Bedrock story generation failed unexpectedly for words %s: %s",
+            word_list, exc,
+            extra={"source_module": __name__, "source_function": "_bedrock_story"},
+        )
         return None

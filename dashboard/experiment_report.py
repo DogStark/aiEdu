@@ -7,12 +7,16 @@ that judgment belongs to whoever reads the report, informed by sample sizes.
 """
 
 import json
+import logging
 import os
 import statistics
 from datetime import datetime
 
 from agent import experiments
+from agent.log_config import get_logger
 from agent.profiler import list_all_profiles
+
+logger = get_logger(__name__)
 
 # Default "N days" for the retention metric: fraction of mastered words still
 # answered correctly at their first recorded review >= N days after mastery.
@@ -160,4 +164,9 @@ def export_experiment_report_json(output_path: str = None, retention_days: int =
         )
     with open(output_path, "w") as f:
         json.dump(report, f, indent=2)
+    logger.info(
+        "Experiment report exported to %s (retention_days=%d, variants=%d)",
+        output_path, retention_days, len(report.get("variants", {})),
+        extra={"source_module": __name__, "source_function": "export_experiment_report_json"},
+    )
     return output_path

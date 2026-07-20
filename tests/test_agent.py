@@ -604,3 +604,98 @@ class TestPrivacyLifecycle:
     def test_student_id_cannot_escape_storage_root(self, client):
         response = client.delete("/api/v1/profile/bad.id")
         assert response.status_code == 400
+
+
+# ── Logging / Exception Handling Tests ──────────────────────────────────────
+
+
+class TestBedrockExceptionLogging:
+    """Verify that non-AWS exceptions in _bedrock_hint / _bedrock_story are
+    logged (not silently swallowed), and that both AWS and non-AWS exceptions
+    still result in fallback behavior."""
+
+    # Patch at the module level so the import inside hint_generator/story_mode
+    # picks up the mock before boto3 is called.
+
+    def test_hint_generator_logs_non_aws_exception(self):
+        """A KeyError (simulating a malformed Bedrock response) must be logged
+        and still result in fallback (return None)."""
+        from unittest.mock import patch
+        import logging
+        from agent.hint_generator import _bedrock_hint
+
+        with patch("agent.hint_generator.boto3.client") as mock_client:
+            # Simulate a malformed response body that triggers a KeyError
+            mock_response = MagicMock()
+            mock_response["body"].read.return_value = json.dumps({"unexpected": "shape"}).encode()
+            mock_client.return_value.invoke_model.return_value = mock_response
+
+            with patch("agent.hint_generator.logger") as mock_logger:
+                result = _bedrock_hint("cat", "animals")
+
+                # Fallback: must return None (not crash, not return a wrong value)
+                assert result is None
+
+                # Must have logged the unexpected exception at ERROR level
+                assert mock_logger.error.called, (
+                    "logger.error must be called when a non-AWS exception occurs"
+                )
+                call_args = mock_logger.error.call_args
+                assert call_args is not None
+                # The log message should include the word
+                assert "cat" in str(call_args)
+
+    def test_hint_generator_logs_aws_exception_as_warning(self):
+        """An AWS BotoCoreError/ClientError must be logged at WARNING level and
+        return None (fallback)."""
+        from unittest.mock import patch
+        from botocore.exceptions import BotoCoreError
+        from agent.hint_generator import _bedrock_hint
+
+        with patch("agent.hint_generator.boto3.client") as mock_client:
+            mock_client.return_value.invoke_model.side_effect = BotoCoreError()
+
+            with patch("agent.hint_generator.logger") as mock_logger:
+                result = _bedrock_hint("cat", "animals")
+                assert result is None
+                assert mock_logger.warning.called, (
+                    "logger.warning must be called for AWS errors"
+                )
+
+    def test_story_mode_logs_non_aws_exception(self):
+        """A KeyError in _bedrock_story must be logged and result in None."""
+        from unittest.mock import patch
+        from agent.story_mode import _bedrock_story
+
+        with patch("agent.story_mode.boto3.client") as mock_client:
+            mock_response = MagicMock()
+            mock_response["body"].read.return_value = json.dumps({"unexpected": "shape"}).encode()
+            mock_client.return_value.invoke_model.return_value = mock_response
+
+            with patch("agent.story_mode.logger") as mock_logger:
+                result = _bedrock_story(["cat", "bat", "hat"])
+                assert result is None
+                assert mock_logger.error.called, (
+                    "logger.error must be called when a non-AWS exception occurs in _bedrock_story"
+                )
+
+    def test_no_bare_except_in_agent_hint_generator(self):
+        """Verify the final except no longer catches Exception broadly."""
+        import inspect
+        from agent import hint_generator
+
+        source = inspect.getsource(hint_generator._bedrock_hint)
+        # Must have two separate except clauses, not one with (..., Exception)
+        assert "except (BotoCoreError, ClientError, Exception)" not in source
+        assert "except (BotoCoreError, ClientError) as exc:" in source
+        assert "except Exception as exc:" in source
+
+    def test_no_bare_except_in_agent_story_mode(self):
+        """Verify the final except no longer catches Exception broadly."""
+        import inspect
+        from agent import story_mode
+
+        source = inspect.getsource(story_mode._bedrock_story)
+        assert "except (BotoCoreError, ClientError, Exception)" not in source
+        assert "except (BotoCoreError, ClientError) as exc:" in source
+        assert "except Exception as exc:" in source
