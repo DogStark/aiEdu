@@ -1,9 +1,13 @@
 import json
+import logging
 import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from agent.log_config import get_logger
 from agent.profiler import load_profile, validate_student_id
+
+logger = get_logger(__name__)
 
 REPORTS_DIR = os.getenv(
     "REPORTS_DIR",
@@ -132,4 +136,10 @@ def export_report_json(student_id: str, output_path: str = None) -> str:
     with destination.open("w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
         f.write("\n")
+
+    logger.info(
+        "Report exported for student '%s' to %s",
+        student_id, str(destination),
+        extra={"source_module": __name__, "source_function": "export_report_json", "student_id": student_id},
+    )
     return str(destination)

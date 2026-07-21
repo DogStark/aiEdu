@@ -363,13 +363,46 @@ POST /api/v1/experiments/report/export
 
 ---
 
+## Structured Logging
+
+The application uses Python's standard `logging` module, configured via `agent/log_config.py`.
+
+### Configuration (environment variables)
+
+| Variable | Default | Description |
+|---|---|---|
+| `LOG_LEVEL` | `INFO` | One of `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL` |
+| `LOG_JSON` | `0` | Set to `1`, `true`, `yes`, or `on` for newline-delimited JSON output |
+
+### JSON format (production)
+
+When `LOG_JSON=1`, each log line is a single JSON object:
+```json
+{"timestamp": "2026-07-20T12:34:56.789Z", "level": "ERROR", "logger": "agent.hint_generator", "message": "Bedrock hint generation failed unexpectedly for word 'cat': 'content'", "module": "agent.hint_generator", "function": "_bedrock_hint", "word": "cat"}
+```
+
+This format is ready for ingestion by log aggregators (CloudWatch, ELK, Datadog, etc.).
+
+### Log points
+
+- **agent/hint_generator.py** — AWS Bedrock errors logged as `WARNING`, unexpected errors (bugs) logged as `ERROR`
+- **agent/story_mode.py** — Same two-tier error handling
+- **api/routes.py** — Profile creation, attempts recorded, hint generation
+- **dashboard/report.py** — Report generation and export
+- **dashboard/experiment_report.py** — Experiment report export
+- **main.py** — Startup, retention sweeps, and profile error handlers
+
+### Error tracking
+
+All `ERROR`-level logs are emitted to stdout in a format suitable for monitoring. For production-grade error tracking (e.g. Sentry), pipe stdout to your preferred log aggregator.
+
+---
+
 ## Running Tests
 
 ```bash
 python3 -m pytest tests/ -v
 ```
-
-Expected: **70 passed** (42 in `test_agent.py`, 28 in `test_experiments.py`)
 
 ---
 

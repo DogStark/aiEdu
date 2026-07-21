@@ -7,6 +7,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from agent.log_config import configure_logging, get_logger
 from agent.privacy import (
     get_retention_sweep_interval_hours,
     purge_expired_profiles,
@@ -20,7 +21,10 @@ from agent.profiler import (
 )
 from api.routes import router
 
-logger = logging.getLogger(__name__)
+# Configure structured logging once at startup.
+configure_logging()
+
+logger = get_logger(__name__)
 
 
 async def _retention_worker(interval_hours: float):

@@ -1,8 +1,13 @@
 import json
+import logging
 import random
 import boto3
 from typing import Optional
 from botocore.exceptions import BotoCoreError, ClientError
+
+from agent.log_config import get_logger
+
+logger = get_logger(__name__)
 
 THEME_HINTS = {
     "animals": "It's a living creature 🐾",
@@ -71,5 +76,17 @@ def _bedrock_hint(word: str, theme: str) -> Optional[str]:
         response = client.invoke_model(modelId="anthropic.claude-3-haiku-20240307-v1:0", body=body)
         result = json.loads(response["body"].read())
         return result["content"][0]["text"].strip()
-    except (BotoCoreError, ClientError, Exception):
+    except (BotoCoreError, ClientError) as exc:
+        logger.warning(
+            "Bedrock hint unavailable for word '%s': %s",
+            word, exc,
+            extra={"source_module": __name__, "source_function": "_bedrock_hint", "word": word},
+        )
+        return None
+    except Exception as exc:
+        logger.error(
+            "Bedrock hint generation failed unexpectedly for word '%s': %s",
+            word, exc,
+            extra={"source_module": __name__, "source_function": "_bedrock_hint", "word": word},
+        )
         return None

@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 from typing import Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -7,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from agent.auth import Account, authorize_student, require_account
 from agent.diagnostic import get_next_diagnostic_question, submit_diagnostic_answer
 from agent.hint_generator import get_encouragement, get_hint
+from agent.log_config import get_logger
 from agent.privacy import delete_student_data, export_student_data
 from agent.profiler import (
     InvalidConsentError,
@@ -20,7 +22,9 @@ from agent.story_mode import generate_story
 from dashboard.report import export_report_json, generate_report
 from dashboard.experiment_report import compute_variant_metrics, export_experiment_report_json, DEFAULT_RETENTION_DAYS
 
-router = APIRouter(prefix="/api/v1", dependencies=[Depends(require_account)])
+logger = get_logger(__name__)
+
+router = APIRouter(prefix="/api/v1")
 
 
 # --- Request Models ---
@@ -101,7 +105,13 @@ def create_student_profile(req: ProfileCreateRequest, account: Account = Depends
     """Create a student profile only after recording guardian consent metadata."""
     authorize_student(account, req.student_id)
     try:
-        return create_profile(req.student_id, _consent_dict(req.consent_metadata))
+        result = create_profile(req.student_id, _consent_dict(req.consent_metadata))
+        logger.info(
+            "Profile created for student '%s'",
+            req.student_id,
+            extra={"source_module": __name__, "source_function": "create_student_profile", "student_id": req.student_id},
+        )
+        return result
     except FileExistsError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
 
@@ -121,6 +131,11 @@ def submit_attempt(req: AttemptRequest, account: Account = Depends(require_accou
         consent_metadata=_consent_dict(req.consent_metadata),
     )
     encouragement = get_encouragement(req.success, profile["consecutive_failures"])
+    logger.info(
+        "Attempt recorded: student='%s' word='%s' success=%s time=%.1fs",
+        req.student_id, req.word, req.success, req.time_taken_seconds,
+        extra={"source_module": __name__, "source_function": "submit_attempt", "student_id": req.student_id, "word": req.word},
+    )
     return {
         "success": req.success,
         "encouragement": encouragement,
@@ -145,6 +160,13 @@ def get_recommendations(req: RecommendRequest, account: Account = Depends(requir
 @router.post("/hint")
 def get_word_hint(req: HintRequest):
     hint = get_hint(req.word, req.theme, req.attempt_number, req.use_bedrock)
+    if req.use_bedrock:
+        is_fallback = hint.startswith("It's a") or hint.startswith("It belongs to")
+        logger.info(
+            "Bedrock hint requested for word '%s' — fallback=%s",
+            req.word, is_fallback,
+            extra={"source_module": __name__, "source_function": "get_word_hint", "word": req.word},
+        )
     return {"word": req.word, "attempt": req.attempt_number, "hint": hint}
 
 
