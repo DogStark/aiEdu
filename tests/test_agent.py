@@ -1,5 +1,6 @@
 import pytest
 import os
+import hashlib
 import json
 import shutil
 from unittest.mock import patch, MagicMock
@@ -9,6 +10,7 @@ TEST_PROFILES_DIR = "/tmp/test_student_profiles"
 TEST_DIAGNOSTIC_DIR = "/tmp/test_diagnostic_sessions"
 TEST_REPORTS_DIR = "/tmp/test_student_reports"
 TEST_AUDIO_CACHE_DIR = "/tmp/test_audio_cache"
+TEST_ACCOUNTS_FILE = "/tmp/test_accounts.json"
 
 CONSENT_METADATA = {
     "guardian_id": "guardian_test_001",
@@ -18,6 +20,35 @@ CONSENT_METADATA = {
     "privacy_policy_version": "test-v1",
     "consented_at": "2025-01-01T00:00:00+00:00",
 }
+
+# API keys used by the route tests. PRIMARY_KEY owns every student the general
+# API tests touch; PARENT_A_KEY and PARENT_B_KEY are two distinct identities
+# used to prove cross-student access is blocked.
+PRIMARY_KEY = "test_primary_key"
+PARENT_A_KEY = "test_parent_a_key"
+PARENT_B_KEY = "test_parent_b_key"
+
+
+def _key_hash(raw_key):
+    return hashlib.sha256(raw_key.encode()).hexdigest()
+
+
+TEST_ACCOUNTS = [
+    {
+        "account_id": "primary", "role": "parent", "api_key_sha256": _key_hash(PRIMARY_KEY),
+        "student_ids": [
+            "api_student", "api_diagnostic_student", "no_consent",
+            "export_all", "delete_all",
+        ],
+    },
+    {"account_id": "parent_a", "role": "parent", "api_key_sha256": _key_hash(PARENT_A_KEY), "student_ids": ["student_a"]},
+    {"account_id": "parent_b", "role": "parent", "api_key_sha256": _key_hash(PARENT_B_KEY), "student_ids": ["student_b"]},
+]
+
+
+def auth(key=PRIMARY_KEY):
+    """Build the Authorization header for an API request."""
+    return {"Authorization": f"Bearer {key}"}
 
 
 def create_consented_profile(student_id):
@@ -47,6 +78,20 @@ def patch_profiles_dir(monkeypatch):
     monkeypatch.setattr("agent.diagnostic.DIAGNOSTIC_DIR", TEST_DIAGNOSTIC_DIR)
     monkeypatch.setattr("dashboard.report.REPORTS_DIR", TEST_REPORTS_DIR)
     monkeypatch.setattr("agent.privacy.AUDIO_CACHE_DIR", TEST_AUDIO_CACHE_DIR)
+
+
+@pytest.fixture(autouse=True)
+def patch_accounts(monkeypatch):
+    from agent import auth as auth_module
+
+    with open(TEST_ACCOUNTS_FILE, "w") as f:
+        json.dump(TEST_ACCOUNTS, f)
+    monkeypatch.setattr(auth_module, "ACCOUNTS_FILE", TEST_ACCOUNTS_FILE)
+    auth_module.reset_registry()
+    yield
+    auth_module.reset_registry()
+    if os.path.exists(TEST_ACCOUNTS_FILE):
+        os.remove(TEST_ACCOUNTS_FILE)
 
 
 # ── Profiler Tests ──────────────────────────────────────────────────────────
@@ -298,7 +343,7 @@ class TestAPIRoutes:
             "theme": "animals",
             "difficulty": 1,
             "consent_metadata": CONSENT_METADATA
-        })
+        }, headers=auth())
         assert r.status_code == 200
         assert "encouragement" in r.json()
 
@@ -306,7 +351,7 @@ class TestAPIRoutes:
         r = client.post("/api/v1/recommend", json={
             "student_id": "api_student", "count": 3,
             "consent_metadata": CONSENT_METADATA
-        })
+        }, headers=auth())
         assert r.status_code == 200
         assert len(r.json()["recommended_words"]) <= 3
 
@@ -314,26 +359,26 @@ class TestAPIRoutes:
         r = client.post("/api/v1/hint", json={
             "word": "cat", "theme": "animals",
             "attempt_number": 1, "use_bedrock": False
-        })
+        }, headers=auth())
         assert r.status_code == 200
         assert "hint" in r.json()
 
     def test_get_profile(self, client):
         created = client.post("/api/v1/profile", json={
             "student_id": "api_student", "consent_metadata": CONSENT_METADATA
-        })
+        }, headers=auth())
         assert created.status_code == 201
-        r = client.get("/api/v1/profile/api_student")
+        r = client.get("/api/v1/profile/api_student", headers=auth())
         assert r.status_code == 200
         assert "student_id" in r.json()
 
     def test_get_report(self, client):
         create_consented_profile("api_student")
-        r = client.get("/api/v1/report/api_student")
+        r = client.get("/api/v1/report/api_student", headers=auth())
         assert r.status_code == 200
 
     def test_phonics_neighbors(self, client):
-        r = client.get("/api/v1/neighbors/cat")
+        r = client.get("/api/v1/neighbors/cat", headers=auth())
         assert r.status_code == 200
         assert "phonics_neighbors" in r.json()
 
@@ -457,7 +502,7 @@ class TestDiagnosticAPIRoutes:
         r_next = client.post("/api/v1/onboarding/diagnostic/next", json={
             "student_id": student_id,
             "consent_metadata": CONSENT_METADATA,
-        })
+        }, headers=auth())
         assert r_next.status_code == 200
         data_next = r_next.json()
         assert data_next["completed"] is False
@@ -470,7 +515,7 @@ class TestDiagnosticAPIRoutes:
             "word": word,
             "success": True,
             "time_taken_seconds": 4.5
-        })
+        }, headers=auth())
         assert r_submit.status_code == 200
         data_submit = r_submit.json()
         assert data_submit["completed"] is False
@@ -497,11 +542,11 @@ class TestPrivacyLifecycle:
             "phonics_tags": ["CVC"],
             "theme": "animals",
             "difficulty": 1,
-        })
+        }, headers=auth())
         assert r.status_code == 403
         assert not os.path.exists(os.path.join(TEST_PROFILES_DIR, "no_consent.json"))
 
-        r = client.post("/api/v1/profile", json={"student_id": "no_consent"})
+        r = client.post("/api/v1/profile", json={"student_id": "no_consent"}, headers=auth())
         assert r.status_code == 422
 
     def test_complete_portable_export(self, client):
@@ -520,7 +565,7 @@ class TestPrivacyLifecycle:
         with open(os.path.join(audio_dir, "hint.mp3"), "wb") as f:
             f.write(b"fake audio")
 
-        response = client.get(f"/api/v1/profile/{student_id}/export")
+        response = client.get(f"/api/v1/profile/{student_id}/export", headers=auth())
         assert response.status_code == 200
         payload = response.json()
         assert payload["export_version"] == "1.0"
@@ -553,7 +598,7 @@ class TestPrivacyLifecycle:
         with open(legacy_report, "w") as f:
             json.dump({"student_id": student_id, "summary": {}}, f)
 
-        response = client.delete(f"/api/v1/profile/{student_id}")
+        response = client.delete(f"/api/v1/profile/{student_id}", headers=auth())
         assert response.status_code == 200
         assert response.json()["deleted"] is True
 
@@ -566,8 +611,8 @@ class TestPrivacyLifecycle:
             assert not any(student_id in name for _, _, files in os.walk(root) for name in files)
 
         # Deletion is idempotent and a deleted profile cannot be read.
-        assert client.delete(f"/api/v1/profile/{student_id}").json()["deleted"] is False
-        assert client.get(f"/api/v1/profile/{student_id}").status_code == 404
+        assert client.delete(f"/api/v1/profile/{student_id}", headers=auth()).json()["deleted"] is False
+        assert client.get(f"/api/v1/profile/{student_id}", headers=auth()).status_code == 404
 
     def test_retention_purges_inactive_profile_and_all_artifacts(self):
         from datetime import datetime, timezone
@@ -602,7 +647,7 @@ class TestPrivacyLifecycle:
         assert not os.path.exists(audio_dir)
 
     def test_student_id_cannot_escape_storage_root(self, client):
-        response = client.delete("/api/v1/profile/bad.id")
+        response = client.delete("/api/v1/profile/bad.id", headers=auth())
         assert response.status_code == 400
 
 
