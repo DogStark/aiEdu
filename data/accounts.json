@@ -1,0 +1,14 @@
+[
+  {
+    "account_id": "parent_amy",
+    "role": "parent",
+    "api_key_sha256": "3088cdcb4617f6b3d519cc705de093eb6ead77401df4f618c3099e9bec6afd98",
+    "student_ids": ["student_001"]
+  },
+  {
+    "account_id": "teacher_lee",
+    "role": "teacher",
+    "api_key_sha256": "f6dec0c1343614bd6c275d6c43fb39a0c793533cf8dd0d8c1fffc1bb1590a4c7",
+    "student_ids": ["student_010", "student_011"]
+  }
+]

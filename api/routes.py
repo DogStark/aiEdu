@@ -1,9 +1,10 @@
 from datetime import datetime
 from typing import Literal, Optional
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field
 
+from agent.auth import Account, authorize_student, require_account
 from agent.diagnostic import get_next_diagnostic_question, submit_diagnostic_answer
 from agent.hint_generator import get_encouragement, get_hint
 from agent.privacy import delete_student_data, export_student_data
@@ -19,7 +20,7 @@ from agent.story_mode import generate_story
 from dashboard.report import export_report_json, generate_report
 from dashboard.experiment_report import compute_variant_metrics, export_experiment_report_json, DEFAULT_RETENTION_DAYS
 
-router = APIRouter(prefix="/api/v1")
+router = APIRouter(prefix="/api/v1", dependencies=[Depends(require_account)])
 
 
 # --- Request Models ---
@@ -96,8 +97,9 @@ def _consent_dict(consent: Optional[ConsentMetadataRequest]) -> Optional[dict]:
 # --- Endpoints ---
 
 @router.post("/profile", status_code=status.HTTP_201_CREATED)
-def create_student_profile(req: ProfileCreateRequest):
+def create_student_profile(req: ProfileCreateRequest, account: Account = Depends(require_account)):
     """Create a student profile only after recording guardian consent metadata."""
+    authorize_student(account, req.student_id)
     try:
         return create_profile(req.student_id, _consent_dict(req.consent_metadata))
     except FileExistsError as exc:
@@ -105,8 +107,9 @@ def create_student_profile(req: ProfileCreateRequest):
 
 
 @router.post("/attempt")
-def submit_attempt(req: AttemptRequest):
+def submit_attempt(req: AttemptRequest, account: Account = Depends(require_account)):
     """Record a word attempt and update the student's learning profile."""
+    authorize_student(account, req.student_id)
     profile = record_attempt(
         req.student_id,
         req.word,
@@ -127,8 +130,9 @@ def submit_attempt(req: AttemptRequest):
 
 
 @router.post("/recommend")
-def get_recommendations(req: RecommendRequest):
+def get_recommendations(req: RecommendRequest, account: Account = Depends(require_account)):
     """Get personalized word recommendations for a consented student."""
+    authorize_student(account, req.student_id)
     # Supplying consent permits first-use creation; otherwise this only loads an
     # existing consented profile.
     load_profile(req.student_id, consent_metadata=_consent_dict(req.consent_metadata))
@@ -145,7 +149,8 @@ def get_word_hint(req: HintRequest):
 
 
 @router.post("/story")
-def create_story(req: StoryRequest):
+def create_story(req: StoryRequest, account: Account = Depends(require_account)):
+    authorize_student(account, req.student_id)
     # Story requests carry a student ID and therefore use the same consent gate.
     load_profile(req.student_id, consent_metadata=_consent_dict(req.consent_metadata))
     story = generate_story(req.words, req.student_id, req.use_bedrock)
@@ -153,49 +158,56 @@ def create_story(req: StoryRequest):
 
 
 @router.get("/profile/{student_id}")
-def get_profile(student_id: str):
+def get_profile(student_id: str, account: Account = Depends(require_account)):
     """Get the full learning profile for an existing student."""
+    authorize_student(account, student_id)
     return load_profile(student_id, create_if_missing=False)
 
 
 @router.get("/profile/{student_id}/export")
-def export_profile(student_id: str):
+def export_profile(student_id: str, account: Account = Depends(require_account)):
     """Return all stored student data as one documented, portable JSON export."""
+    authorize_student(account, student_id)
     return export_student_data(student_id)
 
 
 @router.delete("/profile/{student_id}")
-def delete_profile(student_id: str):
+def delete_profile(student_id: str, account: Account = Depends(require_account)):
     """Idempotently purge profile, diagnostic, reports, and cached audio."""
+    authorize_student(account, student_id)
     return delete_student_data(student_id)
 
 
 @router.get("/profile/{student_id}/struggles")
-def get_struggles(student_id: str):
+def get_struggles(student_id: str, account: Account = Depends(require_account)):
     """Get phonics struggle summary for a student."""
     from agent.profiler import get_struggle_summary
 
+    authorize_student(account, student_id)
     return get_struggle_summary(student_id)
 
 
 @router.get("/profile/{student_id}/review")
-def get_review_words(student_id: str):
+def get_review_words(student_id: str, account: Account = Depends(require_account)):
     """Get words due for spaced repetition review."""
     from agent.profiler import get_words_due_for_review
 
+    authorize_student(account, student_id)
     due = get_words_due_for_review(student_id)
     return {"student_id": student_id, "words_due_for_review": due}
 
 
 @router.get("/report/{student_id}")
-def get_report(student_id: str):
+def get_report(student_id: str, account: Account = Depends(require_account)):
     """Generate a full parent/teacher report for a student."""
+    authorize_student(account, student_id)
     return generate_report(student_id)
 
 
 @router.post("/report/{student_id}/export")
-def export_report(student_id: str):
+def export_report(student_id: str, account: Account = Depends(require_account)):
     """Persist a derived report in the managed reports directory."""
+    authorize_student(account, student_id)
     path = export_report_json(student_id)
     return {"student_id": student_id, "exported_file": path.rsplit("/", 1)[-1]}
 
@@ -208,8 +220,9 @@ def phonics_neighbors(word: str):
 
 
 @router.post("/onboarding/diagnostic/next")
-def get_next_question(req: DiagnosticNextRequest):
+def get_next_question(req: DiagnosticNextRequest, account: Account = Depends(require_account)):
     """Retrieve the next onboarding question, enforcing consent before storage."""
+    authorize_student(account, req.student_id)
     try:
         return get_next_diagnostic_question(
             req.student_id,
@@ -222,8 +235,9 @@ def get_next_question(req: DiagnosticNextRequest):
 
 
 @router.post("/onboarding/diagnostic/submit")
-def submit_answer(req: DiagnosticSubmitRequest):
+def submit_answer(req: DiagnosticSubmitRequest, account: Account = Depends(require_account)):
     """Submit the answer to the current diagnostic word and progress the test."""
+    authorize_student(account, req.student_id)
     try:
         return submit_diagnostic_answer(
             req.student_id,
