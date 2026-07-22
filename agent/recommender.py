@@ -1,19 +1,11 @@
-import json
-import os
 from datetime import datetime
 from agent.profiler import load_profile, get_words_due_for_review
-
-WORD_BANK_PATH = os.path.join(os.path.dirname(__file__), "../data/word_bank.json")
-
-
-def _load_word_bank() -> list[dict]:
-    with open(WORD_BANK_PATH) as f:
-        return json.load(f)["words"]
+from agent.word_bank import load_words
 
 
 def recommend_words(student_id: str, count: int = 5) -> list[dict]:
     profile = load_profile(student_id, create_if_missing=False)
-    words = _load_word_bank()
+    words = load_words()
     due_for_review = set(get_words_due_for_review(student_id))
 
     seen = profile["words"]
@@ -56,7 +48,7 @@ def recommend_words(student_id: str, count: int = 5) -> list[dict]:
 
 
 def get_phonics_neighbors(word: str) -> list[dict]:
-    all_words = _load_word_bank()
+    all_words = load_words()
     target = next((w for w in all_words if w["word"] == word), None)
     if not target:
         return []

@@ -10,5 +10,11 @@
     "role": "teacher",
     "api_key_sha256": "f6dec0c1343614bd6c275d6c43fb39a0c793533cf8dd0d8c1fffc1bb1590a4c7",
     "student_ids": ["student_010", "student_011"]
+  },
+  {
+    "account_id": "admin_content",
+    "role": "admin",
+    "api_key_sha256": "0c00c7356329b83e731dc109f5b72179a0a9d1ba9fb2dd8250fb4a6ec2928175",
+    "student_ids": []
   }
 ]
