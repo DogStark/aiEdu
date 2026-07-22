@@ -1,0 +1,10 @@
+{
+  "classrooms": [
+    {
+      "classroom_id": "lee_reading_group",
+      "teacher_account_id": "teacher_lee",
+      "name": "Lee Reading Group",
+      "student_ids": ["student_010", "student_011"]
+    }
+  ]
+}

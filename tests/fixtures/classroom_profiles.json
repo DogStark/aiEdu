@@ -1,0 +1,3767 @@
+{
+  "classroom": {
+    "classroom_id": "fixture_reading_lab",
+    "teacher_account_id": "teacher_fixture",
+    "name": "Fixture Reading Lab",
+    "student_ids": [
+      "class_student_01",
+      "class_student_02",
+      "class_student_03",
+      "class_student_04",
+      "class_student_05",
+      "class_student_06",
+      "class_student_07",
+      "class_student_08",
+      "class_student_09",
+      "class_student_10",
+      "class_student_11",
+      "class_student_12",
+      "class_student_13",
+      "class_student_14",
+      "class_student_15",
+      "class_student_16",
+      "class_student_17",
+      "class_student_18",
+      "class_student_19",
+      "class_student_20",
+      "class_student_21",
+      "class_student_22",
+      "class_student_23",
+      "class_student_24",
+      "class_student_25",
+      "class_student_26",
+      "class_student_27",
+      "class_student_28",
+      "class_student_29",
+      "class_student_30"
+    ]
+  },
+  "profiles": [
+    {
+      "student_id": "class_student_01",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-21T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 1,
+      "total_sessions": 7,
+      "words": {
+        "ship": {
+          "attempts": 5,
+          "successes": 1,
+          "failures": 4,
+          "avg_time": 7.9,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-05T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 6,
+          "successes": 1,
+          "failures": 5,
+          "avg_time": 8.9,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "avg_time": 9.9,
+          "last_seen": "2026-07-21T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-27T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-04T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 4,
+          "successes": 4,
+          "failures": 0,
+          "avg_time": 10.9,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-27T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "avg_time": 11.9,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-27T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 5
+      },
+      "theme_preferences": {
+        "transport": 3
+      },
+      "consecutive_failures": 1,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-07-21T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_02",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-20T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 2,
+      "total_sessions": 8,
+      "words": {
+        "chip": {
+          "attempts": 6,
+          "successes": 2,
+          "failures": 4,
+          "avg_time": 8.3,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-04T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "chair": {
+          "attempts": 3,
+          "successes": 2,
+          "failures": 1,
+          "avg_time": 9.3,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "lunch": {
+          "attempts": 4,
+          "successes": 3,
+          "failures": 1,
+          "avg_time": 10.3,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-26T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "bench": {
+          "attempts": 5,
+          "successes": 4,
+          "failures": 1,
+          "avg_time": 11.3,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-26T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "peach": {
+          "attempts": 6,
+          "successes": 5,
+          "failures": 1,
+          "avg_time": 12.3,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-26T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-29T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-ch": 6
+      },
+      "theme_preferences": {
+        "food": 4
+      },
+      "consecutive_failures": 0,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "chip",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "chair",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "lunch",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "bench",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "peach",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_03",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-19T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 3,
+      "total_sessions": 9,
+      "words": {
+        "ship": {
+          "attempts": 3,
+          "successes": 1,
+          "failures": 2,
+          "avg_time": 8.7,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-22T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 4,
+          "successes": 1,
+          "failures": 3,
+          "avg_time": 9.7,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-22T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "avg_time": 10.7,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 6,
+          "successes": 6,
+          "failures": 0,
+          "avg_time": 11.7,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "avg_time": 12.7,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-28T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 7
+      },
+      "theme_preferences": {
+        "nature": 5
+      },
+      "consecutive_failures": 1,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_04",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-18T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 4,
+      "total_sessions": 10,
+      "words": {
+        "farm": {
+          "attempts": 4,
+          "successes": 2,
+          "failures": 2,
+          "avg_time": 9.1,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-21T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "bird": {
+          "attempts": 5,
+          "successes": 2,
+          "failures": 3,
+          "avg_time": 10.1,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-21T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "turn": {
+          "attempts": 6,
+          "successes": 5,
+          "failures": 1,
+          "avg_time": 11.1,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "corn": {
+          "attempts": 3,
+          "successes": 2,
+          "failures": 1,
+          "avg_time": 12.1,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-29T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "garden": {
+          "attempts": 4,
+          "successes": 3,
+          "failures": 1,
+          "avg_time": 13.1,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-27T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "r-controlled": 8,
+        "blend-st": 3
+      },
+      "theme_preferences": {
+        "school": 2
+      },
+      "consecutive_failures": 3,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "farm",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "bird",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "turn",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "corn",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "garden",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_05",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-06-29T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 5,
+      "total_sessions": 11,
+      "words": {
+        "ship": {
+          "attempts": 5,
+          "successes": 1,
+          "failures": 4,
+          "avg_time": 9.5,
+          "last_seen": "2026-06-28T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-02T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-06-13T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 6,
+          "successes": 1,
+          "failures": 5,
+          "avg_time": 10.5,
+          "last_seen": "2026-06-27T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-02T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-06-11T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "avg_time": 11.5,
+          "last_seen": "2026-06-29T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-05T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-06-12T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 4,
+          "successes": 4,
+          "failures": 0,
+          "avg_time": 12.5,
+          "last_seen": "2026-06-28T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-05T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-10T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "avg_time": 13.5,
+          "last_seen": "2026-06-27T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-05T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-08T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 4
+      },
+      "theme_preferences": {
+        "animals": 3
+      },
+      "consecutive_failures": 1,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-06-28T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-06-27T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-06-29T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-06-28T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-06-27T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_06",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-22T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 1,
+      "total_sessions": 12,
+      "words": {
+        "ship": {
+          "attempts": 6,
+          "successes": 1,
+          "failures": 5,
+          "avg_time": 9.9,
+          "last_seen": "2026-07-21T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-06T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 3,
+          "successes": 1,
+          "failures": 2,
+          "avg_time": 10.9,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-04T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 4,
+          "successes": 3,
+          "failures": 1,
+          "avg_time": 11.9,
+          "last_seen": "2026-07-22T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-28T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-05T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 5,
+          "successes": 4,
+          "failures": 1,
+          "avg_time": 12.9,
+          "last_seen": "2026-07-21T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-28T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 6,
+          "successes": 5,
+          "failures": 1,
+          "avg_time": 13.9,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-28T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 5
+      },
+      "theme_preferences": {
+        "transport": 4
+      },
+      "consecutive_failures": 0,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-07-21T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-07-22T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-07-21T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_07",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-21T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 2,
+      "total_sessions": 13,
+      "words": {
+        "chip": {
+          "attempts": 3,
+          "successes": 2,
+          "failures": 1,
+          "avg_time": 10.3,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-05T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "chair": {
+          "attempts": 4,
+          "successes": 2,
+          "failures": 2,
+          "avg_time": 11.3,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "lunch": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "avg_time": 12.3,
+          "last_seen": "2026-07-21T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-27T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-04T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "bench": {
+          "attempts": 6,
+          "successes": 6,
+          "failures": 0,
+          "avg_time": 13.3,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-27T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "peach": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "avg_time": 14.3,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-27T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-ch": 6
+      },
+      "theme_preferences": {
+        "food": 5
+      },
+      "consecutive_failures": 1,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "chip",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "chair",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "lunch",
+          "ts": "2026-07-21T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "bench",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "peach",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_08",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-20T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 3,
+      "total_sessions": 14,
+      "words": {
+        "feet": {
+          "attempts": 4,
+          "successes": 2,
+          "failures": 2,
+          "avg_time": 10.7,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-04T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "seed": {
+          "attempts": 5,
+          "successes": 2,
+          "failures": 3,
+          "avg_time": 11.7,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "green": {
+          "attempts": 6,
+          "successes": 5,
+          "failures": 1,
+          "avg_time": 12.7,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-26T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "sleep": {
+          "attempts": 3,
+          "successes": 2,
+          "failures": 1,
+          "avg_time": 13.7,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-26T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "street": {
+          "attempts": 4,
+          "successes": 3,
+          "failures": 1,
+          "avg_time": 14.7,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-26T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-29T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "vowel-team-ee": 7,
+        "r-controlled": 4
+      },
+      "theme_preferences": {
+        "nature": 2
+      },
+      "consecutive_failures": 3,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "feet",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "seed",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "green",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "sleep",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "street",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_09",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-19T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 4,
+      "total_sessions": 15,
+      "words": {
+        "ship": {
+          "attempts": 5,
+          "successes": 1,
+          "failures": 4,
+          "avg_time": 11.1,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-22T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 6,
+          "successes": 1,
+          "failures": 5,
+          "avg_time": 12.1,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-22T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "avg_time": 13.1,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 4,
+          "successes": 4,
+          "failures": 0,
+          "avg_time": 14.1,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "avg_time": 15.1,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-28T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 8
+      },
+      "theme_preferences": {
+        "school": 3
+      },
+      "consecutive_failures": 1,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_10",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-06-30T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 5,
+      "total_sessions": 16,
+      "words": {
+        "ship": {
+          "attempts": 6,
+          "successes": 1,
+          "failures": 5,
+          "avg_time": 11.5,
+          "last_seen": "2026-06-29T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-03T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-06-14T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 3,
+          "successes": 1,
+          "failures": 2,
+          "avg_time": 12.5,
+          "last_seen": "2026-06-28T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-03T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-06-12T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 4,
+          "successes": 3,
+          "failures": 1,
+          "avg_time": 13.5,
+          "last_seen": "2026-06-30T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-06T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-06-13T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 5,
+          "successes": 4,
+          "failures": 1,
+          "avg_time": 14.5,
+          "last_seen": "2026-06-29T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-06T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-11T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 6,
+          "successes": 5,
+          "failures": 1,
+          "avg_time": 15.5,
+          "last_seen": "2026-06-28T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-06T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-09T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 4
+      },
+      "theme_preferences": {
+        "animals": 4
+      },
+      "consecutive_failures": 0,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-06-29T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-06-28T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-06-30T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-06-29T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-06-28T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_11",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-17T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 1,
+      "total_sessions": 17,
+      "words": {
+        "ship": {
+          "attempts": 3,
+          "successes": 1,
+          "failures": 2,
+          "avg_time": 11.9,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-20T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 4,
+          "successes": 1,
+          "failures": 3,
+          "avg_time": 12.9,
+          "last_seen": "2026-07-15T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-20T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-06-29T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "avg_time": 13.9,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 6,
+          "successes": 6,
+          "failures": 0,
+          "avg_time": 14.9,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-28T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "avg_time": 15.9,
+          "last_seen": "2026-07-15T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-26T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 5
+      },
+      "theme_preferences": {
+        "transport": 5
+      },
+      "consecutive_failures": 1,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-07-15T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-07-15T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_12",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-22T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 2,
+      "total_sessions": 18,
+      "words": {
+        "ship": {
+          "attempts": 4,
+          "successes": 1,
+          "failures": 3,
+          "avg_time": 12.3,
+          "last_seen": "2026-07-21T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-06T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 5,
+          "successes": 1,
+          "failures": 4,
+          "avg_time": 13.3,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-04T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 6,
+          "successes": 5,
+          "failures": 1,
+          "avg_time": 14.3,
+          "last_seen": "2026-07-22T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-28T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-05T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 3,
+          "successes": 2,
+          "failures": 1,
+          "avg_time": 15.3,
+          "last_seen": "2026-07-21T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-28T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 4,
+          "successes": 3,
+          "failures": 1,
+          "avg_time": 16.3,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-28T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 6,
+        "vowel-team-ee": 2
+      },
+      "theme_preferences": {
+        "food": 2
+      },
+      "consecutive_failures": 3,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-07-21T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-07-22T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-07-21T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_13",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-21T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 3,
+      "total_sessions": 19,
+      "words": {
+        "feet": {
+          "attempts": 5,
+          "successes": 2,
+          "failures": 3,
+          "avg_time": 12.7,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-05T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "seed": {
+          "attempts": 6,
+          "successes": 2,
+          "failures": 4,
+          "avg_time": 13.7,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "green": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "avg_time": 14.7,
+          "last_seen": "2026-07-21T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-27T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-04T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "sleep": {
+          "attempts": 4,
+          "successes": 4,
+          "failures": 0,
+          "avg_time": 15.7,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-27T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "street": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "avg_time": 16.7,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-27T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "vowel-team-ee": 7
+      },
+      "theme_preferences": {
+        "nature": 3
+      },
+      "consecutive_failures": 1,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "feet",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "seed",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "green",
+          "ts": "2026-07-21T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "sleep",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "street",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_14",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-20T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 4,
+      "total_sessions": 20,
+      "words": {
+        "farm": {
+          "attempts": 6,
+          "successes": 2,
+          "failures": 4,
+          "avg_time": 13.1,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-04T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "bird": {
+          "attempts": 3,
+          "successes": 2,
+          "failures": 1,
+          "avg_time": 14.1,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "turn": {
+          "attempts": 4,
+          "successes": 3,
+          "failures": 1,
+          "avg_time": 15.1,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-26T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "corn": {
+          "attempts": 5,
+          "successes": 4,
+          "failures": 1,
+          "avg_time": 16.1,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-26T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "garden": {
+          "attempts": 6,
+          "successes": 5,
+          "failures": 1,
+          "avg_time": 17.1,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-26T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-29T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "r-controlled": 8
+      },
+      "theme_preferences": {
+        "school": 4
+      },
+      "consecutive_failures": 0,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "farm",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "bird",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "turn",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "corn",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "garden",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_15",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-01T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 5,
+      "total_sessions": 21,
+      "words": {
+        "ship": {
+          "attempts": 3,
+          "successes": 1,
+          "failures": 2,
+          "avg_time": 13.5,
+          "last_seen": "2026-06-30T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-04T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-06-15T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 4,
+          "successes": 1,
+          "failures": 3,
+          "avg_time": 14.5,
+          "last_seen": "2026-06-29T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-04T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-06-13T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "avg_time": 15.5,
+          "last_seen": "2026-07-01T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-07T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-06-14T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 6,
+          "successes": 6,
+          "failures": 0,
+          "avg_time": 16.5,
+          "last_seen": "2026-06-30T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-07T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-12T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "avg_time": 17.5,
+          "last_seen": "2026-06-29T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-07T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-10T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 4
+      },
+      "theme_preferences": {
+        "animals": 5
+      },
+      "consecutive_failures": 1,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-06-30T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-06-29T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-07-01T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-06-30T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-06-29T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_16",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-18T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 1,
+      "total_sessions": 22,
+      "words": {
+        "ship": {
+          "attempts": 4,
+          "successes": 1,
+          "failures": 3,
+          "avg_time": 13.9,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-21T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 5,
+          "successes": 1,
+          "failures": 4,
+          "avg_time": 14.9,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-21T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 6,
+          "successes": 5,
+          "failures": 1,
+          "avg_time": 15.9,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 3,
+          "successes": 2,
+          "failures": 1,
+          "avg_time": 16.9,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-29T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 4,
+          "successes": 3,
+          "failures": 1,
+          "avg_time": 17.9,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-27T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 5,
+        "digraph-ch": 3
+      },
+      "theme_preferences": {
+        "transport": 2
+      },
+      "consecutive_failures": 3,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_17",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-17T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 2,
+      "total_sessions": 23,
+      "words": {
+        "chip": {
+          "attempts": 5,
+          "successes": 2,
+          "failures": 3,
+          "avg_time": 14.3,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-20T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "chair": {
+          "attempts": 6,
+          "successes": 2,
+          "failures": 4,
+          "avg_time": 15.3,
+          "last_seen": "2026-07-15T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-20T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-06-29T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "lunch": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "avg_time": 16.3,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "bench": {
+          "attempts": 4,
+          "successes": 4,
+          "failures": 0,
+          "avg_time": 17.3,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-28T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "peach": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "avg_time": 18.3,
+          "last_seen": "2026-07-15T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-26T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-ch": 6
+      },
+      "theme_preferences": {
+        "food": 3
+      },
+      "consecutive_failures": 1,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "chip",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "chair",
+          "ts": "2026-07-15T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "lunch",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "bench",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "peach",
+          "ts": "2026-07-15T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_18",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-22T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 3,
+      "total_sessions": 24,
+      "words": {
+        "ship": {
+          "attempts": 6,
+          "successes": 1,
+          "failures": 5,
+          "avg_time": 14.7,
+          "last_seen": "2026-07-21T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-06T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 3,
+          "successes": 1,
+          "failures": 2,
+          "avg_time": 15.7,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-04T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 4,
+          "successes": 3,
+          "failures": 1,
+          "avg_time": 16.7,
+          "last_seen": "2026-07-22T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-28T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-05T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 5,
+          "successes": 4,
+          "failures": 1,
+          "avg_time": 17.7,
+          "last_seen": "2026-07-21T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-28T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 6,
+          "successes": 5,
+          "failures": 1,
+          "avg_time": 18.7,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-28T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 7
+      },
+      "theme_preferences": {
+        "nature": 4
+      },
+      "consecutive_failures": 0,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-07-21T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-07-22T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-07-21T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_19",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-21T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 4,
+      "total_sessions": 25,
+      "words": {
+        "farm": {
+          "attempts": 3,
+          "successes": 2,
+          "failures": 1,
+          "avg_time": 15.1,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-05T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "bird": {
+          "attempts": 4,
+          "successes": 2,
+          "failures": 2,
+          "avg_time": 16.1,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "turn": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "avg_time": 17.1,
+          "last_seen": "2026-07-21T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-27T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-04T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "corn": {
+          "attempts": 6,
+          "successes": 6,
+          "failures": 0,
+          "avg_time": 18.1,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-27T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "garden": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "avg_time": 19.1,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-27T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "r-controlled": 8
+      },
+      "theme_preferences": {
+        "school": 5
+      },
+      "consecutive_failures": 1,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "farm",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "bird",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "turn",
+          "ts": "2026-07-21T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "corn",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "garden",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_20",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-06-29T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 5,
+      "total_sessions": 26,
+      "words": {
+        "ship": {
+          "attempts": 4,
+          "successes": 1,
+          "failures": 3,
+          "avg_time": 15.5,
+          "last_seen": "2026-06-28T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-02T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-06-13T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 5,
+          "successes": 1,
+          "failures": 4,
+          "avg_time": 16.5,
+          "last_seen": "2026-06-27T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-02T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-06-11T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 6,
+          "successes": 5,
+          "failures": 1,
+          "avg_time": 17.5,
+          "last_seen": "2026-06-29T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-05T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-06-12T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 3,
+          "successes": 2,
+          "failures": 1,
+          "avg_time": 18.5,
+          "last_seen": "2026-06-28T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-05T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-10T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 4,
+          "successes": 3,
+          "failures": 1,
+          "avg_time": 19.5,
+          "last_seen": "2026-06-27T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-05T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-08T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 4
+      },
+      "theme_preferences": {
+        "animals": 2
+      },
+      "consecutive_failures": 3,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-06-28T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-06-27T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-06-29T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-06-28T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-06-27T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_21",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-19T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 1,
+      "total_sessions": 27,
+      "words": {
+        "ship": {
+          "attempts": 5,
+          "successes": 1,
+          "failures": 4,
+          "avg_time": 15.9,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-22T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 6,
+          "successes": 1,
+          "failures": 5,
+          "avg_time": 16.9,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-22T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "avg_time": 17.9,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 4,
+          "successes": 4,
+          "failures": 0,
+          "avg_time": 18.9,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "avg_time": 19.9,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-28T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 5
+      },
+      "theme_preferences": {
+        "transport": 3
+      },
+      "consecutive_failures": 1,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_22",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-18T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 2,
+      "total_sessions": 28,
+      "words": {
+        "chip": {
+          "attempts": 6,
+          "successes": 2,
+          "failures": 4,
+          "avg_time": 16.3,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-21T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "chair": {
+          "attempts": 3,
+          "successes": 2,
+          "failures": 1,
+          "avg_time": 17.3,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-21T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "lunch": {
+          "attempts": 4,
+          "successes": 3,
+          "failures": 1,
+          "avg_time": 18.3,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "bench": {
+          "attempts": 5,
+          "successes": 4,
+          "failures": 1,
+          "avg_time": 19.3,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-29T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "peach": {
+          "attempts": 6,
+          "successes": 5,
+          "failures": 1,
+          "avg_time": 20.3,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-27T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-ch": 6
+      },
+      "theme_preferences": {
+        "food": 4
+      },
+      "consecutive_failures": 0,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "chip",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "chair",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "lunch",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "bench",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "peach",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_23",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-17T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 3,
+      "total_sessions": 29,
+      "words": {
+        "feet": {
+          "attempts": 3,
+          "successes": 2,
+          "failures": 1,
+          "avg_time": 16.7,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-20T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "seed": {
+          "attempts": 4,
+          "successes": 2,
+          "failures": 2,
+          "avg_time": 17.7,
+          "last_seen": "2026-07-15T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-20T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-06-29T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "green": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "avg_time": 18.7,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "sleep": {
+          "attempts": 6,
+          "successes": 6,
+          "failures": 0,
+          "avg_time": 19.7,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-28T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "street": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "avg_time": 20.7,
+          "last_seen": "2026-07-15T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-26T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "vowel-team-ee": 7
+      },
+      "theme_preferences": {
+        "nature": 5
+      },
+      "consecutive_failures": 1,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "feet",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "seed",
+          "ts": "2026-07-15T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "green",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "sleep",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "street",
+          "ts": "2026-07-15T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_24",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-22T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 4,
+      "total_sessions": 30,
+      "words": {
+        "ship": {
+          "attempts": 4,
+          "successes": 1,
+          "failures": 3,
+          "avg_time": 17.1,
+          "last_seen": "2026-07-21T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-06T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 5,
+          "successes": 1,
+          "failures": 4,
+          "avg_time": 18.1,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-04T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 6,
+          "successes": 5,
+          "failures": 1,
+          "avg_time": 19.1,
+          "last_seen": "2026-07-22T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-28T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-05T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 3,
+          "successes": 2,
+          "failures": 1,
+          "avg_time": 20.1,
+          "last_seen": "2026-07-21T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-28T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 4,
+          "successes": 3,
+          "failures": 1,
+          "avg_time": 21.1,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-28T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 8,
+        "blend-st": 2
+      },
+      "theme_preferences": {
+        "school": 2
+      },
+      "consecutive_failures": 3,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-07-21T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-07-22T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-07-21T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_25",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-06-30T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 5,
+      "total_sessions": 31,
+      "words": {
+        "ship": {
+          "attempts": 5,
+          "successes": 1,
+          "failures": 4,
+          "avg_time": 17.5,
+          "last_seen": "2026-06-29T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-03T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-06-14T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 6,
+          "successes": 1,
+          "failures": 5,
+          "avg_time": 18.5,
+          "last_seen": "2026-06-28T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-03T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-06-12T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "avg_time": 19.5,
+          "last_seen": "2026-06-30T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-06T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-06-13T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 4,
+          "successes": 4,
+          "failures": 0,
+          "avg_time": 20.5,
+          "last_seen": "2026-06-29T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-06T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-11T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "avg_time": 21.5,
+          "last_seen": "2026-06-28T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-06T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-09T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 4
+      },
+      "theme_preferences": {
+        "animals": 3
+      },
+      "consecutive_failures": 1,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-06-29T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-06-28T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-06-30T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-06-29T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-06-28T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_26",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-20T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 1,
+      "total_sessions": 32,
+      "words": {
+        "ship": {
+          "attempts": 6,
+          "successes": 1,
+          "failures": 5,
+          "avg_time": 17.9,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-04T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 3,
+          "successes": 1,
+          "failures": 2,
+          "avg_time": 18.9,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 4,
+          "successes": 3,
+          "failures": 1,
+          "avg_time": 19.9,
+          "last_seen": "2026-07-20T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-26T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 5,
+          "successes": 4,
+          "failures": 1,
+          "avg_time": 20.9,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-26T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 6,
+          "successes": 5,
+          "failures": 1,
+          "avg_time": 21.9,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-26T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-29T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 5
+      },
+      "theme_preferences": {
+        "transport": 4
+      },
+      "consecutive_failures": 0,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-07-20T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_27",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-19T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 2,
+      "total_sessions": 33,
+      "words": {
+        "ship": {
+          "attempts": 3,
+          "successes": 1,
+          "failures": 2,
+          "avg_time": 18.3,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-22T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-03T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 4,
+          "successes": 1,
+          "failures": 3,
+          "avg_time": 19.3,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-22T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "avg_time": 20.3,
+          "last_seen": "2026-07-19T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 6,
+          "successes": 6,
+          "failures": 0,
+          "avg_time": 21.3,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "avg_time": 22.3,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-25T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-28T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 6
+      },
+      "theme_preferences": {
+        "food": 5
+      },
+      "consecutive_failures": 1,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-07-19T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_28",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-18T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 3,
+      "total_sessions": 34,
+      "words": {
+        "feet": {
+          "attempts": 4,
+          "successes": 2,
+          "failures": 2,
+          "avg_time": 18.7,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-21T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-02T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "seed": {
+          "attempts": 5,
+          "successes": 2,
+          "failures": 3,
+          "avg_time": 19.7,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-21T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "green": {
+          "attempts": 6,
+          "successes": 5,
+          "failures": 1,
+          "avg_time": 20.7,
+          "last_seen": "2026-07-18T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "sleep": {
+          "attempts": 3,
+          "successes": 2,
+          "failures": 1,
+          "avg_time": 21.7,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-29T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "street": {
+          "attempts": 4,
+          "successes": 3,
+          "failures": 1,
+          "avg_time": 22.7,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-24T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-27T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "vowel-team-ee": 7,
+        "r-controlled": 3
+      },
+      "theme_preferences": {
+        "nature": 2
+      },
+      "consecutive_failures": 3,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "feet",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "seed",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "green",
+          "ts": "2026-07-18T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "sleep",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "street",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_29",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-17T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 4,
+      "total_sessions": 35,
+      "words": {
+        "farm": {
+          "attempts": 5,
+          "successes": 2,
+          "failures": 3,
+          "avg_time": 19.1,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-20T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-07-01T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "bird": {
+          "attempts": 6,
+          "successes": 2,
+          "failures": 4,
+          "avg_time": 20.1,
+          "last_seen": "2026-07-15T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-20T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-06-29T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "turn": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "avg_time": 21.1,
+          "last_seen": "2026-07-17T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-06-30T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "corn": {
+          "attempts": 4,
+          "successes": 4,
+          "failures": 0,
+          "avg_time": 22.1,
+          "last_seen": "2026-07-16T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-28T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "garden": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "avg_time": 23.1,
+          "last_seen": "2026-07-15T12:00:00+00:00",
+          "mastered": true,
+          "next_review": "2026-07-23T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-26T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "r-controlled": 8
+      },
+      "theme_preferences": {
+        "school": 3
+      },
+      "consecutive_failures": 1,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "farm",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "bird",
+          "ts": "2026-07-15T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "turn",
+          "ts": "2026-07-17T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "corn",
+          "ts": "2026-07-16T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "garden",
+          "ts": "2026-07-15T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    },
+    {
+      "student_id": "class_student_30",
+      "created_at": "2026-01-10T09:00:00+00:00",
+      "updated_at": "2026-07-01T12:00:00+00:00",
+      "consent": {
+        "guardian_id": "guardian_fixture",
+        "relationship": "parent",
+        "consent_given": true,
+        "consent_method": "fixture_import",
+        "privacy_policy_version": "test-v1",
+        "consented_at": "2025-01-01T00:00:00+00:00",
+        "recorded_at": "2025-01-01T00:00:00+00:00"
+      },
+      "current_difficulty": 5,
+      "total_sessions": 36,
+      "words": {
+        "ship": {
+          "attempts": 6,
+          "successes": 1,
+          "failures": 5,
+          "avg_time": 19.5,
+          "last_seen": "2026-06-30T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-04T12:00:00+00:00",
+          "ease_factor": 2.15,
+          "interval_days": 4,
+          "first_seen": "2026-06-15T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shell": {
+          "attempts": 3,
+          "successes": 1,
+          "failures": 2,
+          "avg_time": 20.5,
+          "last_seen": "2026-06-29T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-04T12:00:00+00:00",
+          "ease_factor": 2.2,
+          "interval_days": 5,
+          "first_seen": "2026-06-13T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": false
+        },
+        "shop": {
+          "attempts": 4,
+          "successes": 3,
+          "failures": 1,
+          "avg_time": 21.5,
+          "last_seen": "2026-07-01T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-07T12:00:00+00:00",
+          "ease_factor": 2.25,
+          "interval_days": 6,
+          "first_seen": "2026-06-14T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "wish": {
+          "attempts": 5,
+          "successes": 4,
+          "failures": 1,
+          "avg_time": 22.5,
+          "last_seen": "2026-06-30T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-07T12:00:00+00:00",
+          "ease_factor": 2.3000000000000003,
+          "interval_days": 7,
+          "first_seen": "2026-06-12T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        },
+        "brush": {
+          "attempts": 6,
+          "successes": 5,
+          "failures": 1,
+          "avg_time": 23.5,
+          "last_seen": "2026-06-29T12:00:00+00:00",
+          "mastered": false,
+          "next_review": "2026-07-07T12:00:00+00:00",
+          "ease_factor": 2.35,
+          "interval_days": 8,
+          "first_seen": "2026-06-10T12:00:00+00:00",
+          "mastered_at": null,
+          "last_result": true
+        }
+      },
+      "phonics_struggles": {
+        "digraph-sh": 4
+      },
+      "theme_preferences": {
+        "animals": 4
+      },
+      "consecutive_failures": 0,
+      "session_history": [],
+      "experiment_variant": "control",
+      "attempt_log": [
+        {
+          "word": "ship",
+          "ts": "2026-06-30T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shell",
+          "ts": "2026-06-29T12:00:00+00:00",
+          "success": false
+        },
+        {
+          "word": "shop",
+          "ts": "2026-07-01T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "wish",
+          "ts": "2026-06-30T12:00:00+00:00",
+          "success": true
+        },
+        {
+          "word": "brush",
+          "ts": "2026-06-29T12:00:00+00:00",
+          "success": true
+        }
+      ]
+    }
+  ]
+}
