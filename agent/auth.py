@@ -81,3 +81,19 @@ def authorize_student(account: Account, student_id: str):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized for this student.",
         )
+
+
+def authorize_role(account: Account, allowed_roles: set[str]):
+    """Ensure the account has one of the allowed roles."""
+    if account.role not in allowed_roles:
+        allowed = ", ".join(sorted(allowed_roles))
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Requires one of these roles: {allowed}.",
+        )
+
+
+def require_admin(account: Account = Depends(require_account)) -> Account:
+    """FastAPI dependency for curriculum-management operations."""
+    authorize_role(account, {"admin"})
+    return account

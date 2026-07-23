@@ -2,10 +2,10 @@ from datetime import datetime
 import logging
 from typing import Literal, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
-from agent.auth import Account, authorize_student, require_account
+from agent.auth import Account, authorize_student, require_account, require_admin
 from agent.diagnostic import get_next_diagnostic_question, submit_diagnostic_answer
 from agent.hint_generator import get_encouragement, get_hint
 from agent.log_config import get_logger
@@ -19,6 +19,16 @@ from agent.profiler import (
 )
 from agent.recommender import get_phonics_neighbors, recommend_words
 from agent.story_mode import generate_story
+from agent.word_bank import (
+    DuplicateWordError,
+    WordBankError,
+    WordNotFoundError,
+    create_word_entry,
+    delete_word_entry,
+    get_word_entry,
+    list_word_entries,
+    update_word_entry,
+)
 from dashboard.report import export_report_json, generate_report
 from dashboard.experiment_report import compute_variant_metrics, export_experiment_report_json, DEFAULT_RETENTION_DAYS
 
@@ -92,10 +102,35 @@ class DiagnosticSubmitRequest(StrictRequestModel):
     time_taken_seconds: float = Field(ge=0)
 
 
+class WordEntryRequest(StrictRequestModel):
+    word: str = Field(min_length=1, max_length=64)
+    difficulty: int = Field(ge=1, le=5)
+    phonics: list[str] = Field(min_length=1)
+    theme: str = Field(min_length=1, max_length=128)
+    syllables: int = Field(ge=1)
+    curriculum_tags: list[str] = Field(min_length=1)
+    grade_level: str = Field(min_length=1, max_length=64)
+    part_of_speech: str = Field(min_length=1, max_length=64)
+    example_sentence: str = Field(min_length=1, max_length=512)
+    audio_asset_ref: str = Field(min_length=1, max_length=512)
+
+
 def _consent_dict(consent: Optional[ConsentMetadataRequest]) -> Optional[dict]:
     if consent is None:
         return None
     return consent.model_dump(mode="json", exclude_none=True)
+
+
+def _word_entry_dict(req: WordEntryRequest) -> dict:
+    return req.model_dump(mode="json")
+
+
+def _word_bank_http_error(exc: WordBankError) -> HTTPException:
+    if isinstance(exc, WordNotFoundError):
+        return HTTPException(status_code=404, detail=str(exc))
+    if isinstance(exc, DuplicateWordError):
+        return HTTPException(status_code=409, detail=str(exc))
+    return HTTPException(status_code=422, detail=str(exc))
 
 
 # --- Endpoints ---
@@ -239,6 +274,67 @@ def phonics_neighbors(word: str):
     """Get words that share phonics patterns with the given word."""
     neighbors = get_phonics_neighbors(word)
     return {"word": word, "phonics_neighbors": neighbors}
+
+
+@router.get("/word-bank/words")
+def list_curriculum_words(
+    difficulty: Optional[int] = Query(default=None, ge=1, le=5),
+    phonics: Optional[str] = None,
+    theme: Optional[str] = None,
+    search: Optional[str] = None,
+    limit: int = Query(default=100, ge=1, le=500),
+    offset: int = Query(default=0, ge=0),
+    account: Account = Depends(require_admin),
+):
+    """List curriculum words for admin content management."""
+    try:
+        return list_word_entries(
+            difficulty=difficulty,
+            phonics=phonics,
+            theme=theme,
+            search=search,
+            limit=limit,
+            offset=offset,
+        )
+    except WordBankError as exc:
+        raise _word_bank_http_error(exc) from exc
+
+
+@router.get("/word-bank/words/{word}")
+def get_curriculum_word(word: str, account: Account = Depends(require_admin)):
+    """Read one curriculum word entry."""
+    try:
+        return get_word_entry(word)
+    except WordBankError as exc:
+        raise _word_bank_http_error(exc) from exc
+
+
+@router.post("/word-bank/words", status_code=status.HTTP_201_CREATED)
+def create_curriculum_word(req: WordEntryRequest, account: Account = Depends(require_admin)):
+    """Create a curriculum word entry."""
+    try:
+        return create_word_entry(_word_entry_dict(req))
+    except WordBankError as exc:
+        raise _word_bank_http_error(exc) from exc
+
+
+@router.put("/word-bank/words/{word}")
+def update_curriculum_word(word: str, req: WordEntryRequest, account: Account = Depends(require_admin)):
+    """Replace a curriculum word entry."""
+    try:
+        return update_word_entry(word, _word_entry_dict(req))
+    except WordBankError as exc:
+        raise _word_bank_http_error(exc) from exc
+
+
+@router.delete("/word-bank/words/{word}")
+def delete_curriculum_word(word: str, account: Account = Depends(require_admin)):
+    """Delete a curriculum word entry."""
+    try:
+        deleted = delete_word_entry(word)
+    except WordBankError as exc:
+        raise _word_bank_http_error(exc) from exc
+    return {"deleted": True, "word": deleted["word"]}
 
 
 @router.post("/onboarding/diagnostic/next")
