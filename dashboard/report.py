@@ -33,11 +33,7 @@ def generate_report(student_id: str) -> dict:
     total_attempts = sum(w["attempts"] for w in words.values())
     total_successes = sum(w["successes"] for w in words.values())
     mastered_words = [word for word, data in words.items() if data["mastered"]]
-    struggling_words = [
-        word
-        for word, data in words.items()
-        if data["attempts"] >= 3 and (data["successes"] / data["attempts"]) < 0.5
-    ]
+    struggling_words = _identify_struggling_words(words)
 
     # Words attempted in last 7 days
     cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
@@ -110,6 +106,14 @@ def _build_recommendations(profile: dict, struggling_words: list, struggles: lis
     if not recs:
         recs.append("The student is performing well! Keep up the great work. 🌟")
     return recs
+
+
+def _identify_struggling_words(words: dict) -> list[str]:
+    return [
+        word
+        for word, data in words.items()
+        if data["attempts"] >= 3 and (data["successes"] / data["attempts"]) < 0.5
+    ]
 
 
 def export_report_json(student_id: str, output_path: str = None) -> str:

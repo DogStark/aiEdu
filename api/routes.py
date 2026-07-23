@@ -30,6 +30,15 @@ from agent.word_bank import (
     update_word_entry,
 )
 from dashboard.report import export_report_json, generate_report
+from dashboard.classroom_report import (
+    DEFAULT_INACTIVE_DAYS,
+    ClassroomError,
+    ClassroomNotFoundError,
+    SortDirection,
+    SortField,
+    generate_classroom_report,
+    get_classroom,
+)
 from dashboard.experiment_report import compute_variant_metrics, export_experiment_report_json, DEFAULT_RETENTION_DAYS
 
 logger = get_logger(__name__)
@@ -259,6 +268,46 @@ def get_report(student_id: str, account: Account = Depends(require_account)):
     """Generate a full parent/teacher report for a student."""
     authorize_student(account, student_id)
     return generate_report(student_id)
+
+
+@router.get("/classroom/{classroom_id}/report")
+def get_classroom_report(
+    classroom_id: str,
+    inactive_days: int = Query(default=DEFAULT_INACTIVE_DAYS, ge=1, le=365),
+    struggle_pattern: Optional[str] = None,
+    sort_by: SortField = "student_id",
+    sort_direction: SortDirection = "asc",
+    account: Account = Depends(require_account),
+):
+    """Generate an aggregate classroom report for a teacher-owned classroom."""
+    try:
+        classroom = get_classroom(classroom_id)
+    except ClassroomNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ClassroomError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    if account.role != "teacher" or classroom["teacher_account_id"] != account.account_id:
+        raise HTTPException(status_code=403, detail="Not authorized for this classroom.")
+
+    unauthorized_student_ids = [
+        student_id
+        for student_id in classroom["student_ids"]
+        if student_id not in account.student_ids
+    ]
+    if unauthorized_student_ids:
+        raise HTTPException(
+            status_code=403,
+            detail="Classroom contains students outside this teacher account.",
+        )
+
+    return generate_classroom_report(
+        classroom,
+        inactive_days=inactive_days,
+        struggle_pattern=struggle_pattern,
+        sort_by=sort_by,
+        sort_direction=sort_direction,
+    )
 
 
 @router.post("/report/{student_id}/export")
