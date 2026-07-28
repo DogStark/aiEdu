@@ -66,17 +66,33 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-allowed_origins = [
-    origin.strip()
-    for origin in os.getenv(
-        "CORS_ALLOW_ORIGINS", "http://localhost:3000,http://localhost:5173"
-    ).split(",")
-    if origin.strip()
-]
+env = os.getenv("ENV", "production").lower()
+
+if env == "development":
+    allowed_origins = [
+        origin.strip()
+        for origin in os.getenv(
+            "CORS_ALLOW_ORIGINS", "*"
+        ).split(",")
+        if origin.strip()
+    ]
+    allowed_origins_list = allowed_origins if allowed_origins else ["*"]
+    allow_methods_list = ["*"]
+else:
+    allowed_origins_list = [
+        origin.strip()
+        for origin in os.getenv(
+            "CORS_ALLOW_ORIGINS",
+            "http://localhost:3000,http://localhost:5173",
+        ).split(",")
+        if origin.strip()
+    ] or []
+    allow_methods_list = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_origins=allowed_origins_list,
+    allow_methods=allow_methods_list,
     allow_headers=["*"],
 )
 
