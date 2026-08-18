@@ -1,5 +1,4 @@
 import json
-from typing import Optional
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
@@ -76,7 +75,7 @@ def _parse_structured_story(raw_text: str) -> str:
     return parsed["story"]
 
 
-def _bedrock_story(words: list) -> Optional[str]:
+def _bedrock_story(words: list) -> str | None:
     word_count = len(words)
     try:
         client = boto3.client("bedrock-runtime", config=bedrock_client_config())
@@ -107,7 +106,7 @@ def _bedrock_story(words: list) -> Optional[str]:
             extra={"source_module": __name__, "source_function": "_bedrock_story"},
         )
         return None
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 — must fall back safely on any unexpected provider error
         logger.error(
             "Bedrock story generation failed unexpectedly for %s word(s): %s",
             word_count, exc,

@@ -92,7 +92,7 @@ VARIANT_REGISTRY: dict[str, dict] = {
 # hand-assigned and stable; growing this dict must never mutate an existing
 # range. Buckets 9000-9999 are intentionally left unallocated headroom.
 VARIANT_BUCKETS: dict[str, range] = {
-    "control": range(0, 8000),  # 80%
+    "control": range(8000),  # 80%
     "variant_a_generous_ease": range(8000, 9000),  # 10%
     # 9000-9999 unallocated -> falls back to DEFAULT_VARIANT
 }

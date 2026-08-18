@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -116,7 +115,7 @@ def _identify_struggling_words(words: dict) -> list[str]:
     ]
 
 
-def export_report_json(student_id: str, output_path: str = None) -> str:
+def export_report_json(student_id: str, output_path: str | None = None) -> str:
     """Store a derived report in the managed report directory.
 
     Restricting reports to one managed root ensures export, deletion, and retention

@@ -138,8 +138,9 @@ class TestWordBankAPI:
     @pytest.fixture
     def client(self, tmp_path, monkeypatch):
         from fastapi.testclient import TestClient
-        from main import app
+
         from agent import word_bank
+        from main import app
 
         path = tmp_path / "word_bank.json"
         _seed_bank(path)

@@ -1,6 +1,5 @@
 import json
 import random
-from typing import Optional
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
@@ -80,7 +79,7 @@ def _theme_hint(theme: str) -> str:
     return THEME_HINTS.get(theme, f"It belongs to the '{theme}' category")
 
 
-def _safe_bedrock_hint(word: str, theme: str) -> Optional[str]:
+def _safe_bedrock_hint(word: str, theme: str) -> str | None:
     if not generative_features_enabled():
         return None
     try:
@@ -102,7 +101,7 @@ def _parse_structured_hint(raw_text: str) -> str:
     return parsed["hint"]
 
 
-def _bedrock_hint(word: str, theme: str) -> Optional[str]:
+def _bedrock_hint(word: str, theme: str) -> str | None:
     try:
         client = boto3.client("bedrock-runtime", config=bedrock_client_config())
         prompt = f"<word>{word}</word>\n<theme>{theme}</theme>\nGive the hint now."
@@ -133,7 +132,7 @@ def _bedrock_hint(word: str, theme: str) -> Optional[str]:
             extra={"source_module": __name__, "source_function": "_bedrock_hint", "word": word},
         )
         return None
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 — must fall back safely on any unexpected provider error
         logger.error(
             "Bedrock hint generation failed unexpectedly for word '%s': %s",
             word, exc,

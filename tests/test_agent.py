@@ -1,10 +1,11 @@
-import pytest
-import os
 import hashlib
 import json
+import os
 import shutil
 from typing import ClassVar
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Use isolated storage roots for tests
 TEST_PROFILES_DIR = "/tmp/test_student_profiles"
@@ -122,7 +123,7 @@ class TestProfiler:
         )
 
     def test_record_success(self):
-        from agent.profiler import record_attempt, load_profile
+        from agent.profiler import load_profile, record_attempt
         record_attempt(
             "student_001", "cat", True, 5.0, ["CVC", "short-a"],
             "animals", 1, consent_metadata=CONSENT_METADATA
@@ -133,7 +134,7 @@ class TestProfiler:
         assert p["consecutive_failures"] == 0
 
     def test_record_failure_tracks_phonics(self):
-        from agent.profiler import record_attempt, load_profile
+        from agent.profiler import load_profile, record_attempt
         record_attempt(
             "student_001", "ship", False, 15.0, ["digraph-sh"],
             "transport", 2, consent_metadata=CONSENT_METADATA
@@ -143,7 +144,7 @@ class TestProfiler:
         assert p["consecutive_failures"] == 1
 
     def test_difficulty_increases_on_high_success(self):
-        from agent.profiler import record_attempt, load_profile
+        from agent.profiler import load_profile, record_attempt
         create_consented_profile("student_001")
         for i in range(10):
             record_attempt("student_001", f"word{i}", True, 4.0, ["CVC"], "animals", 1)
@@ -151,7 +152,7 @@ class TestProfiler:
         assert p["current_difficulty"] >= 2
 
     def test_difficulty_decreases_on_low_success(self):
-        from agent.profiler import record_attempt, load_profile
+        from agent.profiler import load_profile, record_attempt
         # First set difficulty to 3
         p_path = os.path.join(TEST_PROFILES_DIR, "student_002.json")
         profile = {
@@ -171,7 +172,7 @@ class TestProfiler:
         assert p["current_difficulty"] <= 3
 
     def test_spaced_repetition_sets_next_review(self):
-        from agent.profiler import record_attempt, load_profile
+        from agent.profiler import load_profile, record_attempt
         record_attempt(
             "student_001", "cat", True, 5.0, ["CVC"], "animals", 1,
             consent_metadata=CONSENT_METADATA
@@ -180,7 +181,7 @@ class TestProfiler:
         assert p["words"]["cat"]["next_review"] is not None
 
     def test_get_struggle_summary(self):
-        from agent.profiler import record_attempt, get_struggle_summary
+        from agent.profiler import get_struggle_summary, record_attempt
         create_consented_profile("student_001")
         record_attempt("student_001", "ship", False, 20.0, ["digraph-sh"], "transport", 2)
         record_attempt("student_001", "chip", False, 18.0, ["digraph-ch"], "food", 2)
@@ -518,6 +519,7 @@ class TestAPIRoutes:
     @pytest.fixture
     def client(self):
         from fastapi.testclient import TestClient
+
         from main import app
         return TestClient(app)
 
@@ -629,7 +631,10 @@ class TestOnboardingDiagnostic:
         assert res["active_question"]["difficulty"] == 3
 
     def test_diagnostic_adaptive_stepping(self):
-        from agent.diagnostic import get_next_diagnostic_question, submit_diagnostic_answer
+        from agent.diagnostic import (
+            get_next_diagnostic_question,
+            submit_diagnostic_answer,
+        )
         
         # Start diagnostic
         res = get_next_diagnostic_question(
@@ -661,7 +666,10 @@ class TestOnboardingDiagnostic:
         assert res_submit3["next_difficulty"] == 3
 
     def test_strong_reader_simulation(self):
-        from agent.diagnostic import get_next_diagnostic_question, submit_diagnostic_answer
+        from agent.diagnostic import (
+            get_next_diagnostic_question,
+            submit_diagnostic_answer,
+        )
         from agent.profiler import load_profile
         
         student_id = "strong_reader"
@@ -690,7 +698,10 @@ class TestOnboardingDiagnostic:
         assert len(profile["diagnostic_history"]) == 10
 
     def test_struggling_reader_simulation(self):
-        from agent.diagnostic import get_next_diagnostic_question, submit_diagnostic_answer
+        from agent.diagnostic import (
+            get_next_diagnostic_question,
+            submit_diagnostic_answer,
+        )
         from agent.profiler import load_profile
         
         student_id = "struggling_reader"
@@ -723,6 +734,7 @@ class TestDiagnosticAPIRoutes:
     @pytest.fixture
     def client(self):
         from fastapi.testclient import TestClient
+
         from main import app
         return TestClient(app)
 
@@ -760,6 +772,7 @@ class TestPrivacyLifecycle:
     @pytest.fixture
     def client(self):
         from fastapi.testclient import TestClient
+
         from main import app
 
         return TestClient(app)
@@ -782,6 +795,7 @@ class TestPrivacyLifecycle:
 
     def test_complete_portable_export(self, client):
         import base64
+
         from agent.diagnostic import get_next_diagnostic_question
         from agent.profiler import record_attempt
         from dashboard.report import export_report_json
@@ -847,6 +861,7 @@ class TestPrivacyLifecycle:
 
     def test_retention_purges_inactive_profile_and_all_artifacts(self):
         from datetime import datetime, timezone
+
         from agent.diagnostic import get_next_diagnostic_question
         from agent.privacy import purge_expired_profiles
         from dashboard.report import export_report_json
@@ -897,7 +912,7 @@ class TestBedrockExceptionLogging:
         """A KeyError (simulating a malformed Bedrock response) must be logged
         and still result in fallback (return None)."""
         from unittest.mock import patch
-        import logging
+
         from agent.hint_generator import _bedrock_hint
 
         with patch("agent.hint_generator.boto3.client") as mock_client:
@@ -925,7 +940,9 @@ class TestBedrockExceptionLogging:
         """An AWS BotoCoreError/ClientError must be logged at WARNING level and
         return None (fallback)."""
         from unittest.mock import patch
+
         from botocore.exceptions import BotoCoreError
+
         from agent.hint_generator import _bedrock_hint
 
         with patch("agent.hint_generator.boto3.client") as mock_client:
@@ -941,6 +958,7 @@ class TestBedrockExceptionLogging:
     def test_story_mode_logs_non_aws_exception(self):
         """A KeyError in _bedrock_story must be logged and result in None."""
         from unittest.mock import patch
+
         from agent.story_mode import _bedrock_story
 
         with patch("agent.story_mode.boto3.client") as mock_client:
@@ -958,6 +976,7 @@ class TestBedrockExceptionLogging:
     def test_no_bare_except_in_agent_hint_generator(self):
         """Verify the final except no longer catches Exception broadly."""
         import inspect
+
         from agent import hint_generator
 
         source = inspect.getsource(hint_generator._bedrock_hint)
@@ -969,6 +988,7 @@ class TestBedrockExceptionLogging:
     def test_no_bare_except_in_agent_story_mode(self):
         """Verify the final except no longer catches Exception broadly."""
         import inspect
+
         from agent import story_mode
 
         source = inspect.getsource(story_mode._bedrock_story)

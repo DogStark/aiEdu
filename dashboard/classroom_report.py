@@ -1,8 +1,9 @@
 import json
 import os
 import re
+from collections.abc import Iterable, Mapping
 from datetime import datetime, timezone
-from typing import Iterable, Literal, Mapping, Optional
+from typing import Literal
 
 from agent.profiler import ProfileNotFoundError, load_profile, validate_student_id
 from dashboard.report import DIFFICULTY_LABELS, _identify_struggling_words
@@ -97,7 +98,7 @@ def generate_classroom_report(
     classroom: Mapping[str, object],
     *,
     inactive_days: int = DEFAULT_INACTIVE_DAYS,
-    struggle_pattern: Optional[str] = None,
+    struggle_pattern: str | None = None,
     sort_by: SortField = "student_id",
     sort_direction: SortDirection = "asc",
 ) -> dict:
@@ -117,10 +118,10 @@ def compute_classroom_report(
     profiles: Iterable[Mapping[str, object]],
     *,
     inactive_days: int = DEFAULT_INACTIVE_DAYS,
-    struggle_pattern: Optional[str] = None,
+    struggle_pattern: str | None = None,
     sort_by: SortField = "student_id",
     sort_direction: SortDirection = "asc",
-    now: Optional[datetime] = None,
+    now: datetime | None = None,
 ) -> dict:
     """Build a classroom report from already-loaded profiles.
 
@@ -201,7 +202,7 @@ def _summarize_student(profile: Mapping[str, object], *, inactive_days: int, now
     }
 
 
-def _last_activity_at(profile: Mapping[str, object]) -> Optional[datetime]:
+def _last_activity_at(profile: Mapping[str, object]) -> datetime | None:
     candidates = [
         _parse_datetime(profile.get("updated_at")),
         _parse_datetime(profile.get("created_at")),
@@ -212,7 +213,7 @@ def _last_activity_at(profile: Mapping[str, object]) -> Optional[datetime]:
     return max(parsed) if parsed else None
 
 
-def _parse_datetime(value: object) -> Optional[datetime]:
+def _parse_datetime(value: object) -> datetime | None:
     if not isinstance(value, str) or not value.strip():
         return None
     try:
@@ -224,7 +225,7 @@ def _parse_datetime(value: object) -> Optional[datetime]:
     return parsed.astimezone(timezone.utc)
 
 
-def _days_inactive(last_active_at: Optional[datetime], now: datetime) -> Optional[int]:
+def _days_inactive(last_active_at: datetime | None, now: datetime) -> int | None:
     if last_active_at is None:
         return None
     return max(0, (now.astimezone(timezone.utc) - last_active_at).days)
@@ -273,7 +274,7 @@ def _common_phonics_struggles(summaries: list[dict]) -> list[dict]:
     return rows[:10]
 
 
-def _filter_by_struggle(summaries: list[dict], struggle_pattern: Optional[str]) -> list[dict]:
+def _filter_by_struggle(summaries: list[dict], struggle_pattern: str | None) -> list[dict]:
     if not struggle_pattern:
         return list(summaries)
     return [

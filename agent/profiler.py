@@ -3,8 +3,8 @@ import json
 import os
 import re
 import tempfile
+from collections.abc import Mapping
 from datetime import datetime, timedelta, timezone
-from typing import Mapping, Optional
 
 from agent.experiments import DEFAULT_VARIANT, assign_variant, get_variant_params
 
@@ -137,7 +137,7 @@ def _new_profile(student_id: str, consent_metadata: Mapping[str, object]) -> dic
 
 def load_profile(
     student_id: str,
-    consent_metadata: Optional[Mapping[str, object]] = None,
+    consent_metadata: Mapping[str, object] | None = None,
     *,
     create_if_missing: bool = True,
 ) -> dict:
@@ -240,7 +240,7 @@ def record_attempt(
     phonics_tags: list[str],
     theme: str,
     difficulty: int,
-    consent_metadata: Optional[Mapping[str, object]] = None,
+    consent_metadata: Mapping[str, object] | None = None,
 ) -> dict:
     profile = load_profile(student_id, consent_metadata=consent_metadata)
     now = utc_now_iso()
@@ -312,7 +312,7 @@ def record_attempt(
     return profile
 
 
-def _update_spaced_repetition(word_entry: dict, quality: int, params: Optional[dict] = None):
+def _update_spaced_repetition(word_entry: dict, quality: int, params: dict | None = None):
     """SM-2 spaced repetition algorithm.
 
     `params` supplies the assigned variant's algorithm parameters (see
@@ -345,7 +345,7 @@ def _update_spaced_repetition(word_entry: dict, quality: int, params: Optional[d
     word_entry["mastered"] = word_entry["interval_days"] >= params["mastery_interval_days"]
 
 
-def _compute_difficulty(profile: dict, params: Optional[dict] = None) -> int:
+def _compute_difficulty(profile: dict, params: dict | None = None) -> int:
     """Adjust difficulty based on recent performance.
 
     `params` supplies the assigned variant's algorithm parameters (see

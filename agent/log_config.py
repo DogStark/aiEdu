@@ -28,7 +28,6 @@ import os
 import sys
 from typing import Any
 
-
 # ---------------------------------------------------------------------------
 # JSON formatter — emits each record as a single line of JSON.
 # ---------------------------------------------------------------------------

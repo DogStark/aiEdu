@@ -1,6 +1,5 @@
 from datetime import datetime
-import logging
-from typing import Literal, Optional
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict, Field
@@ -29,7 +28,6 @@ from agent.word_bank import (
     list_word_entries,
     update_word_entry,
 )
-from dashboard.report import export_report_json, generate_report
 from dashboard.classroom_report import (
     DEFAULT_INACTIVE_DAYS,
     ClassroomError,
@@ -39,7 +37,12 @@ from dashboard.classroom_report import (
     generate_classroom_report,
     get_classroom,
 )
-from dashboard.experiment_report import compute_variant_metrics, export_experiment_report_json, DEFAULT_RETENTION_DAYS
+from dashboard.experiment_report import (
+    DEFAULT_RETENTION_DAYS,
+    compute_variant_metrics,
+    export_experiment_report_json,
+)
+from dashboard.report import export_report_json, generate_report
 
 logger = get_logger(__name__)
 
@@ -60,7 +63,7 @@ class ConsentMetadataRequest(StrictRequestModel):
     consent_given: Literal[True]
     consent_method: str = Field(min_length=1, max_length=256)
     privacy_policy_version: str = Field(min_length=1, max_length=256)
-    consented_at: Optional[datetime] = None
+    consented_at: datetime | None = None
 
 
 class ProfileCreateRequest(StrictRequestModel):
@@ -76,7 +79,7 @@ class AttemptRequest(StrictRequestModel):
     phonics_tags: list[str]
     theme: str
     difficulty: int = Field(ge=1, le=5)
-    consent_metadata: Optional[ConsentMetadataRequest] = None
+    consent_metadata: ConsentMetadataRequest | None = None
 
 
 class HintRequest(StrictRequestModel):
@@ -90,18 +93,18 @@ class StoryRequest(StrictRequestModel):
     student_id: str
     words: list[str] = Field(min_length=1, max_length=5)
     use_bedrock: bool = True
-    consent_metadata: Optional[ConsentMetadataRequest] = None
+    consent_metadata: ConsentMetadataRequest | None = None
 
 
 class RecommendRequest(StrictRequestModel):
     student_id: str
     count: int = Field(default=5, ge=1, le=50)
-    consent_metadata: Optional[ConsentMetadataRequest] = None
+    consent_metadata: ConsentMetadataRequest | None = None
 
 
 class DiagnosticNextRequest(StrictRequestModel):
     student_id: str
-    consent_metadata: Optional[ConsentMetadataRequest] = None
+    consent_metadata: ConsentMetadataRequest | None = None
 
 
 class DiagnosticSubmitRequest(StrictRequestModel):
@@ -124,7 +127,7 @@ class WordEntryRequest(StrictRequestModel):
     audio_asset_ref: str = Field(min_length=1, max_length=512)
 
 
-def _consent_dict(consent: Optional[ConsentMetadataRequest]) -> Optional[dict]:
+def _consent_dict(consent: ConsentMetadataRequest | None) -> dict | None:
     if consent is None:
         return None
     return consent.model_dump(mode="json", exclude_none=True)
@@ -205,7 +208,7 @@ def get_recommendations(req: RecommendRequest, account: Account = Depends(requir
 def get_word_hint(req: HintRequest):
     hint = get_hint(req.word, req.theme, req.attempt_number, req.use_bedrock)
     if req.use_bedrock:
-        is_fallback = hint.startswith("It's a") or hint.startswith("It belongs to")
+        is_fallback = hint.startswith(("It's a", "It belongs to"))
         logger.info(
             "Bedrock hint requested for word '%s' — fallback=%s",
             req.word, is_fallback,
@@ -276,7 +279,7 @@ def get_report(student_id: str, account: Account = Depends(require_account)):
 def get_classroom_report(
     classroom_id: str,
     inactive_days: int = Query(default=DEFAULT_INACTIVE_DAYS, ge=1, le=365),
-    struggle_pattern: Optional[str] = None,
+    struggle_pattern: str | None = None,
     sort_by: SortField = "student_id",
     sort_direction: SortDirection = "asc",
     account: Account = Depends(require_account),
@@ -329,10 +332,10 @@ def phonics_neighbors(word: str):
 
 @router.get("/word-bank/words")
 def list_curriculum_words(
-    difficulty: Optional[int] = Query(default=None, ge=1, le=5),
-    phonics: Optional[str] = None,
-    theme: Optional[str] = None,
-    search: Optional[str] = None,
+    difficulty: int | None = Query(default=None, ge=1, le=5),
+    phonics: str | None = None,
+    theme: str | None = None,
+    search: str | None = None,
     limit: int = Query(default=100, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
     account: Account = Depends(require_admin),

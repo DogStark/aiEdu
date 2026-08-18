@@ -55,6 +55,7 @@ class TestVariantAssignment:
         # (no cached/stored randomness), re-import must reproduce the same
         # result.
         import importlib
+
         import agent.experiments as experiments_module
 
         student_id = "student_restart_test"
@@ -70,13 +71,19 @@ class TestVariantAssignment:
         # break determinism across restarts. Assert the implementation uses
         # hashlib, not the builtin hash().
         import inspect
+
         from agent import experiments
         source = inspect.getsource(experiments._hash_to_bucket)
         assert "hashlib" in source
         assert "hash(" not in source.replace("hashlib.sha256", "")
 
     def test_distribution_roughly_matches_configured_weights(self):
-        from agent.experiments import assign_variant, VARIANT_BUCKETS, BUCKET_SPACE, DEFAULT_VARIANT
+        from agent.experiments import (
+            BUCKET_SPACE,
+            DEFAULT_VARIANT,
+            VARIANT_BUCKETS,
+            assign_variant,
+        )
         n = 20_000
         counts = {}
         for i in range(n):
@@ -101,7 +108,13 @@ class TestVariantAssignment:
             assert abs(actual_share - expected_share) < 0.03
 
     def test_unallocated_buckets_fall_back_to_default_variant(self):
-        from agent.experiments import assign_variant, VARIANT_BUCKETS, BUCKET_SPACE, DEFAULT_VARIANT, _hash_to_bucket
+        from agent.experiments import (
+            BUCKET_SPACE,
+            DEFAULT_VARIANT,
+            VARIANT_BUCKETS,
+            _hash_to_bucket,
+            assign_variant,
+        )
         allocated = set()
         for bucket_range in VARIANT_BUCKETS.values():
             allocated.update(bucket_range)
@@ -156,7 +169,7 @@ class TestVariantAssignment:
         assert profile["experiment_variant"] in {"control", "variant_a_generous_ease"}
 
     def test_preexisting_profile_without_variant_backfills_to_control(self):
-        from agent.profiler import load_profile, _profile_path
+        from agent.profiler import _profile_path, load_profile
         os.makedirs(TEST_PROFILES_DIR, exist_ok=True)
         legacy_profile = {
             "student_id": "legacy_student", "created_at": "2024-01-01",
@@ -186,7 +199,7 @@ class TestControlRegression:
         def pre_parameterization_update(word_entry: dict, quality: int):
             """Verbatim copy of the original hardcoded implementation, kept
             here only as a regression oracle."""
-            from datetime import datetime, timedelta
+            from datetime import datetime, timedelta, timezone
             ef = word_entry["ease_factor"]
             ef = max(1.3, ef + 0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
             word_entry["ease_factor"] = round(ef, 2)
@@ -198,7 +211,7 @@ class TestControlRegression:
             else:
                 word_entry["interval_days"] = round(word_entry["interval_days"] * ef)
 
-            next_review = datetime.utcnow() + timedelta(days=word_entry["interval_days"])
+            next_review = datetime.now(timezone.utc) + timedelta(days=word_entry["interval_days"])
             word_entry["next_review"] = next_review.isoformat()
             word_entry["mastered"] = word_entry["interval_days"] >= 14
 
