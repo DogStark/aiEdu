@@ -88,7 +88,7 @@ class HintRequest(StrictRequestModel):
 
 class StoryRequest(StrictRequestModel):
     student_id: str
-    words: list[str]
+    words: list[str] = Field(min_length=1, max_length=5)
     use_bedrock: bool = True
     consent_metadata: Optional[ConsentMetadataRequest] = None
 
@@ -218,8 +218,10 @@ def get_word_hint(req: HintRequest):
 def create_story(req: StoryRequest, account: Account = Depends(require_account)):
     authorize_student(account, req.student_id)
     # Story requests carry a student ID and therefore use the same consent gate.
+    # The student ID is never forwarded to generate_story: it is a persistent
+    # child identifier and the story generator has no use for a display name.
     load_profile(req.student_id, consent_metadata=_consent_dict(req.consent_metadata))
-    story = generate_story(req.words, req.student_id, req.use_bedrock)
+    story = generate_story(req.words, req.use_bedrock)
     return {"student_id": req.student_id, "words_used": req.words, "story": story}
 
 

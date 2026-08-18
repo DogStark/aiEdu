@@ -27,6 +27,19 @@ The application consent schema deliberately accepts an opaque guardian identifie
 
 The word bank is shared curriculum data and is not student-specific. Hints and stories are not persisted by this repository. If AWS Bedrock is enabled, prompt content may be sent to AWS; the deployment owner must review AWS terms, configure an appropriate data-processing agreement and settings, disclose the processor, and avoid sending direct identifiers.
 
+## Generative AI (hints and stories)
+
+`POST /api/v1/hint` and `POST /api/v1/story` can optionally call AWS Bedrock (`use_bedrock: true`). The following applies to both:
+
+- **No identifiers are sent.** `student_id`, `guardian_id`, and every other persistent identifier are excluded from the Bedrock request. The story endpoint's `student_id` is used only for the consent/authorization check against the caller's account; it is never passed to `agent.story_mode.generate_story` or embedded in a prompt, hint, or fallback story.
+- **Only canonical curriculum content is sent.** Every word and theme is checked against the exact entries in `agent/word_bank.py` before it can reach a prompt (`agent/ai_safety.py:validate_word`/`validate_theme`/`validate_words_for_generation`). Free-form or attacker-controlled text — including prompt-injection strings — is rejected before any provider call is made, with the same deterministic template used for provider unavailability.
+- **Output is screened before it reaches a child.** Model responses must match a structured JSON contract, pass a content-safety screen, and (for stories) satisfy exact sentence-count and required-word-coverage checks. Anything that fails — malformed JSON, unsafe content, a missing curriculum word — is discarded in favor of the deterministic fallback story/hint, the same as a Bedrock timeout or outage.
+- **Provider calls are bounded.** Every Bedrock call has explicit connect/read timeouts and a bounded retry count (`BEDROCK_CONNECT_TIMEOUT_SECONDS`, `BEDROCK_READ_TIMEOUT_SECONDS`, `BEDROCK_MAX_RETRIES`).
+- **Safety decisions are logged without content.** Each accept/reject decision is recorded with a feature name, an outcome, and the active `AI_SAFETY_POLICY_VERSION` — never the underlying words, hint, or story text, and never a student or guardian identifier.
+- **Operators can disable Bedrock entirely** by setting `ENABLE_GENERATIVE_FEATURES=0`, which forces every hint and story onto the deterministic template path with no outbound AWS call. `BEDROCK_MODEL_ID` selects the model used when enabled.
+
+The content-safety screen in `agent/ai_safety.py` is a lightweight denylist-based heuristic intended as defense in depth, not a substitute for a managed moderation service; operators with stricter requirements should front Bedrock calls with one.
+
 ## Consent gate
 
 A new profile can be created only with all of the following `consent_metadata`:
