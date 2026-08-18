@@ -12,7 +12,7 @@ import mimetypes
 import os
 import shutil
 from collections.abc import Iterable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from agent.profiler import load_profile, validate_student_id
@@ -219,7 +219,7 @@ def export_student_data(student_id: str) -> dict:
 
     return {
         "export_version": EXPORT_VERSION,
-        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "exported_at": datetime.now(UTC).isoformat(),
         "student_id": student_id,
         "data": {
             "profile": profile,
@@ -270,13 +270,13 @@ def _parse_activity_timestamp(profile: dict, path: Path) -> datetime:
     value = profile.get("updated_at") or profile.get("created_at")
     if isinstance(value, str):
         try:
-            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))  # noqa: FURB162 — defensive parsing of stored timestamps, kept regardless of Python version
             if parsed.tzinfo is None:
-                parsed = parsed.replace(tzinfo=timezone.utc)
-            return parsed.astimezone(timezone.utc)
+                parsed = parsed.replace(tzinfo=UTC)
+            return parsed.astimezone(UTC)
         except ValueError:
             pass
-    return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
+    return datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
 
 
 def _subtract_calendar_months(value: datetime, months: int) -> datetime:
@@ -297,10 +297,10 @@ def purge_expired_profiles(
     if not isinstance(months, int) or months < 1:
         raise ValueError("retention_months must be a positive integer.")
 
-    reference_time = now or datetime.now(timezone.utc)
+    reference_time = now or datetime.now(UTC)
     if reference_time.tzinfo is None:
-        reference_time = reference_time.replace(tzinfo=timezone.utc)
-    reference_time = reference_time.astimezone(timezone.utc)
+        reference_time = reference_time.replace(tzinfo=UTC)
+    reference_time = reference_time.astimezone(UTC)
     cutoff = _subtract_calendar_months(reference_time, months)
 
     profiles_root = _storage_roots()["profile"]

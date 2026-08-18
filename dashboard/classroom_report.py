@@ -2,7 +2,7 @@ import json
 import os
 import re
 from collections.abc import Iterable, Mapping
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Literal
 
 from agent.profiler import ProfileNotFoundError, load_profile, validate_student_id
@@ -129,7 +129,7 @@ def compute_classroom_report(
     be unit-tested as pure aggregation logic.
     """
     classroom = validate_classroom(classroom)
-    now = now or datetime.now(timezone.utc)
+    now = now or datetime.now(UTC)
     profile_by_id = {profile.get("student_id"): profile for profile in profiles}
     summaries = []
     missing_student_ids = []
@@ -217,18 +217,18 @@ def _parse_datetime(value: object) -> datetime | None:
     if not isinstance(value, str) or not value.strip():
         return None
     try:
-        parsed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))  # noqa: FURB162 — defensive parsing of stored timestamps, kept regardless of Python version
     except ValueError:
         return None
     if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=timezone.utc)
-    return parsed.astimezone(timezone.utc)
+        parsed = parsed.replace(tzinfo=UTC)
+    return parsed.astimezone(UTC)
 
 
 def _days_inactive(last_active_at: datetime | None, now: datetime) -> int | None:
     if last_active_at is None:
         return None
-    return max(0, (now.astimezone(timezone.utc) - last_active_at).days)
+    return max(0, (now.astimezone(UTC) - last_active_at).days)
 
 
 def _difficulty_distribution(summaries: list[dict]) -> list[dict]:

@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from agent.log_config import get_logger
@@ -35,7 +35,7 @@ def generate_report(student_id: str) -> dict:
     struggling_words = _identify_struggling_words(words)
 
     # Words attempted in last 7 days
-    cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+    cutoff = (datetime.now(UTC) - timedelta(days=7)).isoformat()
     recent_words = [
         word
         for word, data in words.items()
@@ -56,7 +56,7 @@ def generate_report(student_id: str) -> dict:
 
     return {
         "student_id": student_id,
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "summary": {
             "current_level": DIFFICULTY_LABELS.get(
                 profile["current_difficulty"], "Unknown"

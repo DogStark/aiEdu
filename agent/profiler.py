@@ -4,7 +4,7 @@ import os
 import re
 import tempfile
 from collections.abc import Mapping
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from agent.experiments import DEFAULT_VARIANT, assign_variant, get_variant_params
 
@@ -45,7 +45,7 @@ class ProfileNotFoundError(ProfileError, FileNotFoundError):
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def utc_now_iso() -> str:
@@ -67,12 +67,12 @@ def _parse_consent_time(value: object) -> str:
     if not isinstance(value, str) or not value.strip():
         raise InvalidConsentError("consented_at must be a non-empty ISO-8601 timestamp when provided.")
     try:
-        parsed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))  # noqa: FURB162 — defensive parsing of caller-supplied timestamps, kept regardless of Python version
     except ValueError as exc:
         raise InvalidConsentError("consented_at must be a valid ISO-8601 timestamp.") from exc
     if parsed.tzinfo is None:
         raise InvalidConsentError("consented_at must include a timezone offset.")
-    parsed = parsed.astimezone(timezone.utc)
+    parsed = parsed.astimezone(UTC)
     if parsed > utc_now() + timedelta(minutes=5):
         raise InvalidConsentError("consented_at cannot be in the future.")
     return parsed.isoformat()
@@ -392,9 +392,9 @@ def get_words_due_for_review(student_id: str) -> list[str]:
     due = []
     for word, data in profile["words"].items():
         if data["next_review"] and not data["mastered"]:
-            review_date = datetime.fromisoformat(data["next_review"].replace("Z", "+00:00"))
+            review_date = datetime.fromisoformat(data["next_review"].replace("Z", "+00:00"))  # noqa: FURB162 — defensive parsing of stored timestamps, kept regardless of Python version
             if review_date.tzinfo is None:
-                review_date = review_date.replace(tzinfo=timezone.utc)
+                review_date = review_date.replace(tzinfo=UTC)
             if review_date <= now:
                 due.append(word)
     return due

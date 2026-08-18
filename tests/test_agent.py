@@ -2,6 +2,7 @@ import hashlib
 import json
 import os
 import shutil
+from datetime import UTC
 from typing import ClassVar
 from unittest.mock import MagicMock, patch
 
@@ -860,7 +861,7 @@ class TestPrivacyLifecycle:
         assert client.get(f"/api/v1/profile/{student_id}", headers=auth()).status_code == 404
 
     def test_retention_purges_inactive_profile_and_all_artifacts(self):
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         from agent.diagnostic import get_next_diagnostic_question
         from agent.privacy import purge_expired_profiles
@@ -884,7 +885,7 @@ class TestPrivacyLifecycle:
 
         result = purge_expired_profiles(
             retention_months=12,
-            now=datetime(2026, 7, 17, tzinfo=timezone.utc),
+            now=datetime(2026, 7, 17, tzinfo=UTC),
         )
         assert result["purged_student_ids"] == [student_id]
         assert not os.path.exists(profile_path)

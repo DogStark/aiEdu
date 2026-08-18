@@ -152,7 +152,10 @@ def create_student_profile(req: ProfileCreateRequest, account: Account = Depends
     """Create a student profile only after recording guardian consent metadata."""
     authorize_student(account, req.student_id)
     try:
-        result = create_profile(req.student_id, _consent_dict(req.consent_metadata))
+        # req.consent_metadata is required (not Optional) on this request model,
+        # unlike the other call sites that route through _consent_dict().
+        consent_metadata = req.consent_metadata.model_dump(mode="json", exclude_none=True)
+        result = create_profile(req.student_id, consent_metadata)
         logger.info(
             "Profile created for student '%s'",
             req.student_id,

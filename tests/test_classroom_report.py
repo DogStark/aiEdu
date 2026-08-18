@@ -2,7 +2,7 @@ import hashlib
 import json
 import os
 import shutil
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -101,7 +101,7 @@ class TestClassroomAggregation:
     def test_rollup_aggregates_30_student_fixture(self, classroom_fixture):
         from dashboard.classroom_report import compute_classroom_report
 
-        now = datetime(2026, 7, 22, 12, 0, tzinfo=timezone.utc)
+        now = datetime(2026, 7, 22, 12, 0, tzinfo=UTC)
         report = compute_classroom_report(
             classroom_fixture["classroom"],
             classroom_fixture["profiles"],
@@ -123,7 +123,7 @@ class TestClassroomAggregation:
     def test_filtering_and_sorting_find_students_with_specific_struggle(self, classroom_fixture):
         from dashboard.classroom_report import compute_classroom_report
 
-        now = datetime(2026, 7, 22, 12, 0, tzinfo=timezone.utc)
+        now = datetime(2026, 7, 22, 12, 0, tzinfo=UTC)
         report = compute_classroom_report(
             classroom_fixture["classroom"],
             classroom_fixture["profiles"],

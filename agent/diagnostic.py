@@ -198,7 +198,7 @@ def submit_diagnostic_answer(student_id: str, word: str, success: bool, time_tak
 
 def _finalize_diagnostic(session: dict):
     # Calculate initial phonics struggles based on failures in the diagnostic history
-    initial_phonics_struggles = {}
+    initial_phonics_struggles: dict[str, int] = {}
     for attempt in session["history"]:
         if not attempt["success"]:
             for tag in attempt["phonics"]:
