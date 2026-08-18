@@ -1,5 +1,4 @@
-from datetime import datetime
-from agent.profiler import load_profile, get_words_due_for_review
+from agent.profiler import get_words_due_for_review, load_profile
 from agent.word_bank import load_words
 
 

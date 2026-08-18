@@ -7,10 +7,9 @@ that judgment belongs to whoever reads the report, informed by sample sizes.
 """
 
 import json
-import logging
 import os
 import statistics
-from datetime import datetime
+from datetime import datetime, timezone
 
 from agent import experiments
 from agent.log_config import get_logger
@@ -150,13 +149,15 @@ def compute_variant_metrics(retention_days: int = DEFAULT_RETENTION_DAYS) -> dic
         }
 
     return {
-        "generated_at": datetime.utcnow().isoformat(),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "retention_days": retention_days,
         "variants": variants_report,
     }
 
 
-def export_experiment_report_json(output_path: str = None, retention_days: int = DEFAULT_RETENTION_DAYS) -> str:
+def export_experiment_report_json(
+    output_path: str | None = None, retention_days: int = DEFAULT_RETENTION_DAYS
+) -> str:
     report = compute_variant_metrics(retention_days)
     if not output_path:
         output_path = os.path.join(

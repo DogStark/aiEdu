@@ -2,8 +2,8 @@ import json
 import os
 import re
 import tempfile
+from collections.abc import Mapping
 from copy import deepcopy
-from typing import Mapping, Optional
 
 WORD_BANK_PATH = os.path.join(os.path.dirname(__file__), "../data/word_bank.json")
 
@@ -50,7 +50,7 @@ def _require_text_list(entry: Mapping[str, object], field: str) -> list[str]:
     return normalized
 
 
-def _require_int(entry: Mapping[str, object], field: str, *, minimum: int, maximum: Optional[int] = None) -> int:
+def _require_int(entry: Mapping[str, object], field: str, *, minimum: int, maximum: int | None = None) -> int:
     value = entry.get(field)
     if isinstance(value, bool) or not isinstance(value, int):
         raise WordBankError(f"{field} is required and must be an integer.")
@@ -138,10 +138,10 @@ def _save_word_bank(data: Mapping[str, object]):
 
 def list_word_entries(
     *,
-    difficulty: Optional[int] = None,
-    phonics: Optional[str] = None,
-    theme: Optional[str] = None,
-    search: Optional[str] = None,
+    difficulty: int | None = None,
+    phonics: str | None = None,
+    theme: str | None = None,
+    search: str | None = None,
     limit: int = 100,
     offset: int = 0,
 ) -> dict:

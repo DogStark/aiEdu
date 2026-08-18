@@ -11,9 +11,9 @@ import json
 import mimetypes
 import os
 import shutil
+from collections.abc import Iterable
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable, Optional
 
 from agent.profiler import load_profile, validate_student_id
 
@@ -83,13 +83,12 @@ def _json_identifies_student(path: Path, student_id: str) -> bool:
 def _name_identifies_student(path: Path, student_id: str) -> bool:
     """Match only storage naming conventions, not arbitrary substrings."""
     name = path.name
-    return (
-        name == student_id
-        or name.startswith(f"{student_id}.")
-        or name.startswith(f"{student_id}_")
-        or name.startswith(f"{student_id}-")
-        or name.startswith(f".{student_id}.")  # abandoned atomic-write temp file
-    )
+    return name == student_id or name.startswith((
+        f"{student_id}.",
+        f"{student_id}_",
+        f"{student_id}-",
+        f".{student_id}.",  # abandoned atomic-write temp file
+    ))
 
 
 def _iter_files(root: Path) -> Iterable[Path]:
@@ -123,10 +122,9 @@ def _student_report_paths(student_id: str, roots: dict[str, Path]) -> set[Path]:
             identified_by_managed_name = _name_identifies_student(path, student_id) and (
                 root == roots["report"] or "report" in path.name.lower()
             )
-            if identified_by_content or identified_by_managed_name:
-                # Never classify the primary profile itself as a report.
-                if path != roots["profile"] / f"{student_id}.json":
-                    paths.add(path)
+            # Never classify the primary profile itself as a report.
+            if (identified_by_content or identified_by_managed_name) and path != roots["profile"] / f"{student_id}.json":
+                paths.add(path)
     return paths
 
 
@@ -291,8 +289,8 @@ def _subtract_calendar_months(value: datetime, months: int) -> datetime:
 
 def purge_expired_profiles(
     *,
-    retention_months: Optional[int] = None,
-    now: Optional[datetime] = None,
+    retention_months: int | None = None,
+    now: datetime | None = None,
 ) -> dict:
     """Purge profiles inactive for at least the configured calendar-month period."""
     months = get_retention_months() if retention_months is None else retention_months

@@ -149,6 +149,7 @@ class TestClassroomAPI:
     @pytest.fixture
     def client(self, persisted_classroom):
         from fastapi.testclient import TestClient
+
         from main import app
 
         return TestClient(app)

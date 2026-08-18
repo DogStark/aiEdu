@@ -1,7 +1,7 @@
 import json
 import os
 import random
-from typing import Mapping, Optional
+from collections.abc import Mapping
 
 from agent.profiler import load_profile, save_profile, utc_now_iso
 
@@ -53,7 +53,7 @@ def save_diagnostic_session(session: dict):
 
 def get_next_diagnostic_question(
     student_id: str,
-    consent_metadata: Optional[Mapping[str, object]] = None,
+    consent_metadata: Mapping[str, object] | None = None,
 ) -> dict:
     # This must happen before a diagnostic session directory or file is created.
     load_profile(student_id, consent_metadata=consent_metadata)

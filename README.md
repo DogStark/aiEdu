@@ -103,6 +103,30 @@ export AWS_ACCESS_KEY_ID=<your-key>
 export AWS_SECRET_ACCESS_KEY=<your-secret>
 ```
 If Bedrock is unavailable, the agent falls back to built-in templates automatically.
+The same fallback is used whenever generated content fails a safety check — see
+"AI safety guardrails" below and [`PRIVACY.md`](PRIVACY.md) for what is sent to AWS.
+
+```bash
+# Optional Bedrock/safety configuration, defaults shown
+export BEDROCK_MODEL_ID=anthropic.claude-3-haiku-20240307-v1:0
+export BEDROCK_CONNECT_TIMEOUT_SECONDS=3
+export BEDROCK_READ_TIMEOUT_SECONDS=8
+export BEDROCK_MAX_RETRIES=2
+export AI_SAFETY_POLICY_VERSION=2026-08-18
+export ENABLE_GENERATIVE_FEATURES=1   # set to 0 to disable Bedrock hints/stories entirely
+```
+
+### AI safety guardrails
+
+`agent/hint_generator.py` and `agent/story_mode.py` never send a student's
+persistent identifier to Bedrock, and only forward words/themes that exactly
+match an entry in the curriculum word bank (`agent/word_bank.py`) — free-form
+or injected text never reaches a prompt. Model output must satisfy a
+structured JSON response contract, child-appropriate content screening, and
+(for stories) exact sentence-count and required-word-coverage checks;
+anything that fails is discarded in favor of the same deterministic template
+fallback used when Bedrock is unavailable. See `agent/ai_safety.py` for the
+full set of checks and `PRIVACY.md` for the privacy posture.
 
 ### Privacy/retention configuration
 

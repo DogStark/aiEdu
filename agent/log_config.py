@@ -28,7 +28,6 @@ import os
 import sys
 from typing import Any
 
-
 # ---------------------------------------------------------------------------
 # JSON formatter — emits each record as a single line of JSON.
 # ---------------------------------------------------------------------------
@@ -47,7 +46,7 @@ class JsonFormatter(logging.Formatter):
         if record.exc_info and record.exc_info[0] is not None:
             obj["exception"] = self.formatException(record.exc_info)
         # Add extra fields passed via extra={}
-        for key in ("source_module", "source_function", "student_id", "word", "variant"):
+        for key in ("source_module", "source_function", "student_id", "word", "variant", "feature", "outcome"):
             value = getattr(record, key, None)
             if value is not None:
                 obj[key] = value
