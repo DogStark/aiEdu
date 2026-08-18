@@ -6,37 +6,116 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Lowest and highest Python versions in pyproject.toml's requires-python.
+        # tests/test_concurrency.py therefore runs once per version here — that
+        # is the documented matrix purpose the duplicate standalone run (removed
+        # in issue #28) did not have.
+        python-version: ["3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
 
       - name: Lint with ruff
-        run: |
-          pip install ruff
-          ruff check .
+        run: ruff check .
 
       - name: Type check with mypy
-        run: |
-          pip install mypy
-          mypy main.py --ignore-missing-imports || true
+        run: mypy
 
-      - name: Run tests
+      - name: Run tests with coverage
         run: |
-          python -m pytest tests/ -v --tb=short
+          pytest --cov=agent --cov=api --cov=dashboard --cov=main \
+            --cov-branch --cov-report=term-missing --cov-report=xml --cov-report=html
 
-      - name: Run concurrency tests
+      - name: Upload coverage report
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage.xml
+            htmlcov/
+
+      - name: API startup smoke check
+        if: matrix.python-version == '3.12'
         run: |
-          python -m pytest tests/test_concurrency.py -v --tb=long
+          python -m uvicorn main:app --host 127.0.0.1 --port 8000 &
+          SERVER_PID=$!
+          ok=0
+          for _ in $(seq 1 20); do
+            if curl -sf http://127.0.0.1:8000/ > response.json; then ok=1; break; fi
+            sleep 0.5
+          done
+          kill "$SERVER_PID" 2>/dev/null || true
+          if [ "$ok" -ne 1 ]; then
+            echo "API did not respond to a startup request." >&2
+            exit 1
+          fi
+          grep -q '"status":"running"' response.json || (echo "Unexpected startup response: $(cat response.json)" >&2 && exit 1)
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - run: pip install -r requirements-dev.txt
+
+      - name: Audit dependencies for known vulnerabilities
+        # Every --ignore-vuln below is a pre-existing, deferred finding — see
+        # "Known dependency findings" in SECURITY.md for what each one is and
+        # why it isn't fixed yet. Do not add an id here without adding it (and
+        # the reason) there too; a new, undocumented finding must fail this
+        # step.
+        run: |
+          pip-audit -r requirements.txt -r requirements-dev.txt \
+            --ignore-vuln PYSEC-2026-1845 \
+            --ignore-vuln PYSEC-2026-161 \
+            --ignore-vuln PYSEC-2026-248 \
+            --ignore-vuln PYSEC-2026-249 \
+            --ignore-vuln PYSEC-2026-1943 \
+            --ignore-vuln PYSEC-2026-1941 \
+            --ignore-vuln PYSEC-2026-2281 \
+            --ignore-vuln PYSEC-2026-2280
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan for committed secrets
+        uses: trufflesecurity/trufflehog@v3.97.0
+        with:
+          extra_args: --results=verified,unknown

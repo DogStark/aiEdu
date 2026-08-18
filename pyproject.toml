@@ -1,4 +1,53 @@
+[project]
+name = "wordbloc-ai-agent"
+version = "1.1.0"
+description = "WordBloc AI Learning Agent — adaptive phonics tutoring API."
+requires-python = ">=3.11,<3.13"
+
 [tool.ruff.lint.flake8-bugbear]
 # FastAPI's dependency-injection convention is Depends(...)/Query(...) as an
 # argument default; that is not the "mutable default" bug B008 looks for.
 extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["agent", "api", "dashboard", "main.py"]
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+check_untyped_defs = true
+
+# boto3/botocore ship no inline types or py.typed marker; installing the
+# (very large) third-party stub packages is not warranted for the handful of
+# calls this project makes, so this project trusts them at the boundary.
+[[tool.mypy.overrides]]
+module = ["boto3", "botocore.*"]
+ignore_missing_imports = true
+
+# --- Temporary per-module exceptions -----------------------------------
+# These modules have pre-existing type errors that predate issue #28 (which
+# added first-party type checking to CI) and are out of scope for it — see
+# https://github.com/DogStark/aiEdu/issues/28 for the follow-up to fix each
+# module's underlying issues and remove its entry below. Do not add new
+# entries here without linking a tracking issue; fix the type error instead.
+[[tool.mypy.overrides]]
+module = [
+    "agent.profiler",
+    "agent.privacy",
+    "dashboard.classroom_report",
+]
+ignore_errors = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+]

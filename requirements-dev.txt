@@ -1,0 +1,14 @@
+# Development/test tooling, on top of runtime dependencies.
+# Regenerate exact pins with pip-compile (pip-tools) after editing this file
+# or requirements.txt: `pip-compile --output-file=requirements-dev.txt
+# requirements.txt requirements-dev.in` — kept as hand-pinned files for now
+# since neither changes often; treat both as the project's lock files.
+-r requirements.txt
+
+pytest==8.2.2
+pytest-asyncio==0.23.7
+pytest-cov==7.1.0
+httpx==0.27.0
+ruff==0.16.3
+mypy==2.3.1
+pip-audit==2.10.1

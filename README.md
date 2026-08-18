@@ -50,7 +50,9 @@ eduAgent/
 │   └── test_experiments.py  # Tests for the experimentation framework
 ├── PRIVACY.md               # Data inventory, lifecycle, limits, and legal open questions
 ├── main.py                  # FastAPI app entry point + periodic retention sweep
-└── requirements.txt
+├── pyproject.toml           # ruff/mypy/pytest/coverage config + supported Python range
+├── requirements.txt         # runtime dependencies
+└── requirements-dev.txt     # + lint/type-check/test/coverage/audit tooling (see Development)
 ```
 
 ---
@@ -91,9 +93,15 @@ Never shrink or move an already-allocated variant's bucket range — that would 
 
 ## Setup
 
+Requires Python 3.11 or 3.12 (see `requires-python` in `pyproject.toml`; CI
+tests both).
+
 ```bash
 pip3 install -r requirements.txt
 ```
+
+Contributing? Install the dev/test tooling too — see
+[Development](#development) below.
 
 ### AWS Bedrock (optional)
 For AI-powered hints and story generation, configure AWS credentials:
@@ -422,11 +430,36 @@ All `ERROR`-level logs are emitted to stdout in a format suitable for monitoring
 
 ---
 
-## Running Tests
+## Development
+
+Install runtime *and* dev/test dependencies (exact versions pinned, same as CI):
 
 ```bash
-python3 -m pytest tests/ -v
+pip3 install -r requirements-dev.txt
 ```
+
+These are the exact commands CI runs, in order — run them all before opening a
+PR:
+
+```bash
+ruff check .                                                    # lint
+mypy                                                             # type check (agent/, api/, dashboard/, main.py)
+pytest --cov=agent --cov=api --cov=dashboard --cov=main \
+  --cov-branch --cov-report=term-missing                         # tests + coverage
+pip-audit -r requirements.txt -r requirements-dev.txt            # dependency vulnerabilities
+```
+
+Notes:
+
+- `ruff` and `mypy` configuration lives in `pyproject.toml`, including a
+  documented, temporary list of modules exempted from type checking (see the
+  comment above `[[tool.mypy.overrides]]` there) and the coverage baseline
+  (`[tool.coverage.report] fail_under`) — it can only be raised, never lowered.
+- `pip-audit` ignores a short, documented list of pre-existing findings that
+  need a coordinated framework upgrade — see [`SECURITY.md`](SECURITY.md#known-dependency-findings-deferred).
+  A *new* finding is not pre-ignored and will fail the command.
+- CI additionally runs a startup smoke check (`uvicorn main:app` + a request to
+  `/`) and a secret-detection scan (TruffleHog) — see `.github/workflows/ci.yml`.
 
 ---
 

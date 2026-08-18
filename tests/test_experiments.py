@@ -9,6 +9,7 @@ import copy
 import json
 import os
 import shutil
+from datetime import UTC
 
 import pytest
 
@@ -199,7 +200,7 @@ class TestControlRegression:
         def pre_parameterization_update(word_entry: dict, quality: int):
             """Verbatim copy of the original hardcoded implementation, kept
             here only as a regression oracle."""
-            from datetime import datetime, timedelta, timezone
+            from datetime import datetime, timedelta
             ef = word_entry["ease_factor"]
             ef = max(1.3, ef + 0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
             word_entry["ease_factor"] = round(ef, 2)
@@ -211,7 +212,7 @@ class TestControlRegression:
             else:
                 word_entry["interval_days"] = round(word_entry["interval_days"] * ef)
 
-            next_review = datetime.now(timezone.utc) + timedelta(days=word_entry["interval_days"])
+            next_review = datetime.now(UTC) + timedelta(days=word_entry["interval_days"])
             word_entry["next_review"] = next_review.isoformat()
             word_entry["mastered"] = word_entry["interval_days"] >= 14
 

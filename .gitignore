@@ -1,2 +1,14 @@
 # Somzilla issue tracking file
 Somzilla.md
+
+# Python
+__pycache__/
+*.pyc
+
+# Test/lint/type-check tool caches and coverage output
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
