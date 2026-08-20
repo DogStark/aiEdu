@@ -97,3 +97,14 @@ def require_admin(account: Account = Depends(require_account)) -> Account:
     """FastAPI dependency for curriculum-management operations."""
     authorize_role(account, {"admin"})
     return account
+
+
+def require_researcher(account: Account = Depends(require_account)) -> Account:
+    """FastAPI dependency for experiment-reporting operations.
+
+    Scans across all student profiles and (for exports) writes derived data
+    to disk, so it is gated to privileged roles rather than any
+    parent/teacher account, which are scoped to their own students.
+    """
+    authorize_role(account, {"admin", "researcher"})
+    return account
