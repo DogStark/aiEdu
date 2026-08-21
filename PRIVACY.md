@@ -1,6 +1,6 @@
 # WordBloc Privacy and Student-Data Lifecycle
 
-**Last updated:** 2026-07-17  
+**Last updated:** 2026-08-21  
 **Application privacy-policy version used in examples:** `2026-07-17`
 
 > **Important:** This document describes technical controls in this repository. It is not legal advice and does not, by itself, make a deployment compliant with COPPA, FERPA, state student-privacy laws, or any other law. A maintainer and qualified privacy/legal reviewer must approve the data flow, notices, contracts, and consent process before this service is used with children.
@@ -39,6 +39,41 @@ The word bank is shared curriculum data and is not student-specific. Hints and s
 - **Operators can disable Bedrock entirely** by setting `ENABLE_GENERATIVE_FEATURES=0`, which forces every hint and story onto the deterministic template path with no outbound AWS call. `BEDROCK_MODEL_ID` selects the model used when enabled.
 
 The content-safety screen in `agent/ai_safety.py` is a lightweight denylist-based heuristic intended as defense in depth, not a substitute for a managed moderation service; operators with stricter requirements should front Bedrock calls with one.
+
+## Logging and observability
+
+Logs are observability data, not a student-data store. Because log sinks are typically shipped to third parties with their own retention and access rules, and because they sit outside `export_student_data`, `delete_student_data`, and the retention sweep, the service never emits managed student data in the first place (`agent/log_config.py`). Regression tests in `tests/test_log_privacy.py` fail on any seeded identifier, credential, attempted word, or generated content appearing in emitted logs, in both plain-text and JSON modes.
+
+### Data classification for logs
+
+| Class | Examples | Log treatment |
+|---|---|---|
+| Direct identifiers | `student_id`, `guardian_id`, account IDs | Never logged raw; replaced by keyed pseudonyms (below) |
+| Learning content | Attempted words, hints, stories, prompts, free-text themes | Never logged; reduced to bounded categorical fields such as `word_length_bucket`, counts, and enumerated outcomes |
+| Auth material | API keys, bearer/authorization headers | Never logged; scrubbed defensively even if a call site errs |
+| Request bodies and query strings | Attempt payloads, consent metadata | Never logged |
+| Provider errors | Bedrock exceptions | Logged as exception type name plus enumerated outcome; response bodies are never echoed |
+| Operational metadata | Route templates, status codes, latency, request IDs, policy versions | Logged freely — all server-owned values |
+
+### Pseudonymous correlation
+
+Call sites that need to correlate records use `pseudonymize()`: a truncated HMAC-SHA256 of the identifier keyed by `LOG_PSEUDONYM_KEY`. The key is environment-specific and rotatable — rotating it permanently breaks all prior correlation links. When the variable is unset, a random per-process key is used, so values never survive restarts. Unsalted public hashes are never used, because they can be brute-forced against known ID spaces.
+
+Every request also receives an unguessable `X-Request-ID` (returned in the response header) that stamps each log line, so operators debug individual requests without any persistent identifier.
+
+### Redaction defense in depth
+
+`configure_logging()` installs `RedactionFilter` on the root handler so every record — including third-party loggers such as `uvicorn.access` or HTTP clients — is scrubbed across formatted messages, plain message templates, and exception text: bearer tokens, labeled credentials/identifiers/content fields (`student_id=…`, `word=…`, `api_key=…`), and identifier-bearing URL path segments are replaced with `[REDACTED]`. Structured JSON output uses an allowlist of non-identifying fields only; legacy extras carrying `student_id` or `word` are converted to `student_ref` pseudonyms and length buckets rather than dropped silently. JSON records carry UTC RFC 3339 timestamps.
+
+### Operator obligations for external log systems
+
+Application deletion cannot erase logs already exported elsewhere. Before production use, operators must:
+
+1. Treat every log sink (CloudWatch, ELK, Datadog, files, SIEM archives) as a processor holding potential child-activity metadata, covered by the same contracts, disclosures, and deletion/retention commitments as the primary store.
+2. Set explicit retention periods on log sinks that are no longer than operationally required, and document them alongside `DATA_RETENTION_MONTHS`.
+3. Restrict log access with the same rigor as the student store, since logs contain request-level activity patterns even when fully pseudonymized.
+4. Protect and rotate `LOG_PSEUDONYM_KEY` like a secret; anyone holding it can correlate a child's activity across logs.
+5. Remember that deleting a student's profile through the API does not propagate to independently exported or archived logs; incident-response and data-subject-request procedures must address log history separately.
 
 ## Consent gate
 
@@ -110,7 +145,7 @@ At minimum, maintainers must add or verify:
 - proof that the requester may access, export, or delete the specified student's record;
 - TLS in transit and appropriate encryption/key management at rest;
 - restrictive CORS through `CORS_ALLOW_ORIGINS` (never a public wildcard);
-- rate limits, abuse controls, secure audit logging that avoids child data, and incident response;
+- rate limits and abuse controls, incident response, and verification that the redaction pipeline in `agent/log_config.py` covers every deployed log sink (see "Logging and observability");
 - secrets management and least-privilege filesystem/cloud permissions;
 - backup, replica, observability, and third-party processor deletion/retention controls;
 - a tested process to correct/amend records and handle school/parent requests; and

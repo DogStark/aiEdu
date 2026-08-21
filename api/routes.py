@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from agent.auth import Account, authorize_student, require_account, require_admin
 from agent.diagnostic import get_next_diagnostic_question, submit_diagnostic_answer
 from agent.hint_generator import get_encouragement, get_hint
-from agent.log_config import get_logger
+from agent.log_config import get_logger, pseudonymize, word_length_bucket
 from agent.privacy import delete_student_data, export_student_data
 from agent.profiler import (
     InvalidConsentError,
@@ -157,9 +157,13 @@ def create_student_profile(req: ProfileCreateRequest, account: Account = Depends
         consent_metadata = req.consent_metadata.model_dump(mode="json", exclude_none=True)
         result = create_profile(req.student_id, consent_metadata)
         logger.info(
-            "Profile created for student '%s'",
-            req.student_id,
-            extra={"source_module": __name__, "source_function": "create_student_profile", "student_id": req.student_id},
+            "Profile created",
+            extra={
+                "source_module": __name__,
+                "source_function": "create_student_profile",
+                "student_ref": pseudonymize(req.student_id),
+                "outcome": "created",
+            },
         )
         return result
     except FileExistsError as exc:
@@ -182,9 +186,17 @@ def submit_attempt(req: AttemptRequest, account: Account = Depends(require_accou
     )
     encouragement = get_encouragement(req.success, profile["consecutive_failures"])
     logger.info(
-        "Attempt recorded: student='%s' word='%s' success=%s time=%.1fs",
-        req.student_id, req.word, req.success, req.time_taken_seconds,
-        extra={"source_module": __name__, "source_function": "submit_attempt", "student_id": req.student_id, "word": req.word},
+        "Attempt recorded",
+        extra={
+            "source_module": __name__,
+            "source_function": "submit_attempt",
+            "student_ref": pseudonymize(req.student_id),
+            # Learning content stays out of logs: the word is reduced to a
+            # bounded length bucket and the outcome to success/failure.
+            "word_length_bucket": word_length_bucket(len(req.word)),
+            "outcome": "success" if req.success else "failure",
+            "time_taken_seconds": req.time_taken_seconds,
+        },
     )
     return {
         "success": req.success,
@@ -213,9 +225,16 @@ def get_word_hint(req: HintRequest):
     if req.use_bedrock:
         is_fallback = hint.startswith(("It's a", "It belongs to"))
         logger.info(
-            "Bedrock hint requested for word '%s' — fallback=%s",
-            req.word, is_fallback,
-            extra={"source_module": __name__, "source_function": "get_word_hint", "word": req.word},
+            "Bedrock hint requested",
+            extra={
+                "source_module": __name__,
+                "source_function": "get_word_hint",
+                # The attempted word is never logged; only its length bucket.
+                "word_length_bucket": word_length_bucket(len(req.word)),
+                "attempt_number": req.attempt_number,
+                "feature": "hint",
+                "provider_outcome": "fallback" if is_fallback else "generated",
+            },
         )
     return {"word": req.word, "attempt": req.attempt_number, "hint": hint}
 
