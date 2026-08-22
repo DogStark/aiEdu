@@ -118,24 +118,42 @@ def _bedrock_hint(word: str, theme: str) -> str | None:
         record_safety_outcome("hint", "generated")
         return hint
     except (BotoCoreError, ClientError) as exc:
+        # Provider failures are logged by type only: exception payloads can
+        # echo request content, and logs sit outside managed student-data
+        # deletion (see PRIVACY.md, "Logging and observability").
         logger.warning(
-            "Bedrock hint unavailable for word '%s': %s",
-            word, exc,
-            extra={"source_module": __name__, "source_function": "_bedrock_hint", "word": word},
+            "Bedrock hint unavailable",
+            extra={
+                "source_module": __name__,
+                "source_function": "_bedrock_hint",
+                "feature": "hint",
+                "provider_outcome": "provider_unavailable",
+                "error_type": type(exc).__name__,
+            },
         )
         return None
     except UnsafeContentError as exc:
         record_safety_outcome("hint", "output_rejected")
         logger.warning(
-            "Bedrock hint output failed the safety/response contract for word '%s': %s",
-            word, exc,
-            extra={"source_module": __name__, "source_function": "_bedrock_hint", "word": word},
+            "Bedrock hint output failed the safety/response contract",
+            extra={
+                "source_module": __name__,
+                "source_function": "_bedrock_hint",
+                "feature": "hint",
+                "provider_outcome": "output_rejected",
+                "error_type": type(exc).__name__,
+            },
         )
         return None
     except Exception as exc:  # noqa: BLE001 — must fall back safely on any unexpected provider error
         logger.error(
-            "Bedrock hint generation failed unexpectedly for word '%s': %s",
-            word, exc,
-            extra={"source_module": __name__, "source_function": "_bedrock_hint", "word": word},
+            "Bedrock hint generation failed unexpectedly",
+            extra={
+                "source_module": __name__,
+                "source_function": "_bedrock_hint",
+                "feature": "hint",
+                "provider_outcome": "provider_error",
+                "error_type": type(exc).__name__,
+            },
         )
         return None

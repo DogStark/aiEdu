@@ -92,24 +92,44 @@ def _bedrock_story(words: list) -> str | None:
         record_safety_outcome("story", "generated")
         return story
     except (BotoCoreError, ClientError) as exc:
+        # Provider failures are logged by type only; see PRIVACY.md,
+        # "Logging and observability".
         logger.warning(
-            "Bedrock story generation unavailable for %s word(s): %s",
-            word_count, exc,
-            extra={"source_module": __name__, "source_function": "_bedrock_story"},
+            "Bedrock story generation unavailable",
+            extra={
+                "source_module": __name__,
+                "source_function": "_bedrock_story",
+                "word_count": word_count,
+                "feature": "story",
+                "provider_outcome": "provider_unavailable",
+                "error_type": type(exc).__name__,
+            },
         )
         return None
     except UnsafeContentError as exc:
         record_safety_outcome("story", "output_rejected")
         logger.warning(
-            "Bedrock story output failed the safety/response contract for %s word(s): %s",
-            word_count, exc,
-            extra={"source_module": __name__, "source_function": "_bedrock_story"},
+            "Bedrock story output failed the safety/response contract",
+            extra={
+                "source_module": __name__,
+                "source_function": "_bedrock_story",
+                "word_count": word_count,
+                "feature": "story",
+                "provider_outcome": "output_rejected",
+                "error_type": type(exc).__name__,
+            },
         )
         return None
     except Exception as exc:  # noqa: BLE001 — must fall back safely on any unexpected provider error
         logger.error(
-            "Bedrock story generation failed unexpectedly for %s word(s): %s",
-            word_count, exc,
-            extra={"source_module": __name__, "source_function": "_bedrock_story"},
+            "Bedrock story generation failed unexpectedly",
+            extra={
+                "source_module": __name__,
+                "source_function": "_bedrock_story",
+                "word_count": word_count,
+                "feature": "story",
+                "provider_outcome": "provider_error",
+                "error_type": type(exc).__name__,
+            },
         )
         return None

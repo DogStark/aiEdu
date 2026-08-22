@@ -934,8 +934,13 @@ class TestBedrockExceptionLogging:
                 )
                 call_args = mock_logger.error.call_args
                 assert call_args is not None
-                # The log message should include the word
-                assert "cat" in str(call_args)
+                # The log message must identify only the failure category:
+                # the attempted word is learning content and stays out of
+                # logs (issue #26).
+                assert "cat" not in str(call_args), (
+                    "the attempted word must never appear in provider-error logs"
+                )
+                assert "provider_error" in str(call_args)
 
     def test_hint_generator_logs_aws_exception_as_warning(self):
         """An AWS BotoCoreError/ClientError must be logged at WARNING level and
