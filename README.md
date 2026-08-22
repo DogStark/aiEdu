@@ -170,6 +170,11 @@ teacher's classroom is simply that account's set of students. A caller can only
 read or write students it owns; anything else returns `403`. Requests with no
 key or an unknown key return `401`.
 
+Curriculum-management (`/api/v1/word-bank/*`) and experiment-reporting
+(`/api/v1/experiments/*`) routes are not scoped to a student set at all —
+they require an account with the `admin` role (or, for experiment reporting,
+the `researcher` role) rather than any parent/teacher account.
+
 Accounts live in `data/accounts.json`. Keys are stored only as a SHA-256 hash,
 so provision a new client by hashing its key and adding an entry:
 
@@ -384,13 +389,29 @@ GET /api/v1/neighbors/{word}
 ```
 
 ### Get Experiment Metrics Report
-```
+
+Requires an `admin` or `researcher` account — it aggregates across every
+student profile, not just the caller's own students.
+
+```http
 GET /api/v1/experiments/report?retention_days=30
 ```
 
+`retention_days` is bounded to `1`-`365`; out-of-range or non-integer values
+return `422`.
+
 ### Export Experiment Metrics Report
+
+Requires an `admin` or `researcher` account. Writes the report to the managed
+reports directory and returns only the artifact's filename, never a host
+filesystem path.
+
+```http
+POST /api/v1/experiments/report/export?retention_days=30
 ```
-POST /api/v1/experiments/report/export
+
+```json
+{ "exported_file": "experiment_report.json" }
 ```
 
 ---

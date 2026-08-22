@@ -1,10 +1,17 @@
+import os
 from datetime import datetime
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
-from agent.auth import Account, authorize_student, require_account, require_admin
+from agent.auth import (
+    Account,
+    authorize_student,
+    require_account,
+    require_admin,
+    require_researcher,
+)
 from agent.diagnostic import get_next_diagnostic_question, submit_diagnostic_answer
 from agent.hint_generator import get_encouragement, get_hint
 from agent.log_config import get_logger
@@ -426,16 +433,42 @@ def submit_answer(req: DiagnosticSubmitRequest, account: Account = Depends(requi
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
-@router.get("/experiments/report")
-def get_experiment_report(retention_days: int = DEFAULT_RETENTION_DAYS):
+# Centralizing the auth dependency at the sub-router boundary (rather than on
+# each endpoint) means every future route added under /experiments inherits
+# the privileged-role requirement by default instead of needing to opt in.
+experiments_router = APIRouter(
+    prefix="/experiments",
+    dependencies=[Depends(require_researcher)],
+)
+
+
+@experiments_router.get("/report")
+def get_experiment_report(
+    retention_days: int = Query(default=DEFAULT_RETENTION_DAYS, ge=1, le=365),
+):
     """Per-variant retention, time-to-mastery, and session-engagement
     metrics for the spaced-repetition experiment (see agent/experiments.py).
-    Measurement only — does not declare a winning variant."""
+    Measurement only — does not declare a winning variant.
+
+    Requires an authenticated account with the `admin` or `researcher` role,
+    since this scans every student profile rather than one account's own
+    students.
+    """
     return compute_variant_metrics(retention_days)
 
 
-@router.post("/experiments/report/export")
-def export_experiment_report(retention_days: int = DEFAULT_RETENTION_DAYS):
-    """Export the experiment metrics report as a JSON file."""
+@experiments_router.post("/report/export")
+def export_experiment_report(
+    retention_days: int = Query(default=DEFAULT_RETENTION_DAYS, ge=1, le=365),
+):
+    """Export the experiment metrics report as a JSON file.
+
+    Requires an authenticated account with the `admin` or `researcher` role.
+    Returns only the exported artifact's filename, never the host filesystem
+    path it was written to.
+    """
     path = export_experiment_report_json(retention_days=retention_days)
-    return {"exported_to": path}
+    return {"exported_file": os.path.basename(path)}
+
+
+router.include_router(experiments_router)
