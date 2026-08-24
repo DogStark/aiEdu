@@ -191,6 +191,133 @@ class TestProfiler:
         assert summary["consecutive_failures"] >= 2
 
 
+# ── Adaptive Difficulty: Rolling-Window Policy ──────────────────────────────
+#
+# Timeline-based coverage of agent/profiler.py::_compute_difficulty's
+# rolling-window policy (evidence threshold, evaluation cadence,
+# cooldown/hysteresis, and boundary behavior) — see
+# ADAPTIVE_DIFFICULTY_DESIGN.md. Unlike TestControlRegression in
+# tests/test_experiments.py (which pins the exact formula), these tests
+# assert concrete, hand-computed outcomes end-to-end through record_attempt,
+# independent of the implementation's internal structure.
+
+class TestDifficultyRollingWindowPolicy:
+    def test_difficulty_holds_below_minimum_evidence(self):
+        """4 attempts clears the eval cadence (>=3) but not min_evidence
+        (>=5): the level must hold at its starting value regardless of how
+        good or bad those 4 attempts were."""
+        from agent.profiler import load_profile, record_attempt
+        create_consented_profile("evidence_student")
+        for i in range(4):
+            record_attempt("evidence_student", f"word{i}", True, 4.0, [], "animals", 1)
+        p = load_profile("evidence_student")
+        assert p["current_difficulty"] == 1
+        assert p["difficulty_log"][-1]["reason"] == "insufficient_evidence"
+
+    def test_cooldown_blocks_second_change_immediately_after_first(self):
+        """10 consecutive successes: evidence + cadence open at attempt 6
+        (window=6, rate=1.0) and the level rises 1->2. By attempt 9 the
+        window is still all-success and would cross the threshold again,
+        but only 3 attempts have passed since the change at attempt 6
+        (cooldown requires 5) — so the second bump is withheld, not applied
+        a second time in the same short span."""
+        from agent.profiler import load_profile, record_attempt
+        create_consented_profile("cooldown_student")
+        for i in range(10):
+            record_attempt("cooldown_student", f"word{i}", True, 4.0, [], "animals", 1)
+        p = load_profile("cooldown_student")
+        assert p["current_difficulty"] == 2
+        reasons = [entry["reason"] for entry in p["difficulty_log"]]
+        assert "increased" in reasons
+        assert reasons.count("increased") == 1
+        assert "cooldown_active" in reasons
+
+    def test_alternating_outcomes_never_oscillate(self):
+        """A strictly alternating success/failure pattern always sits at a
+        ~50% rolling success rate — between the down (0.4) and up (0.8)
+        thresholds — so the level must never move at all, cooldown or not."""
+        from agent.profiler import load_profile, record_attempt
+        create_consented_profile("alternating_student")
+        for i in range(12):
+            record_attempt("alternating_student", f"word{i}", i % 2 == 0, 4.0, [], "animals", 1)
+        p = load_profile("alternating_student")
+        assert p["current_difficulty"] == 1
+        reasons = {entry["reason"] for entry in p["difficulty_log"]}
+        assert "increased" not in reasons
+        assert "decreased" not in reasons
+
+    def test_difficulty_does_not_overshoot_maximum(self):
+        """Already at the ceiling with a strong success rate: the policy
+        must report this as an explicit boundary outcome ("at_max"), not
+        silently overshoot difficulty_max or misreport it as "stable"."""
+        from agent.profiler import load_profile, record_attempt, save_profile
+        profile = create_consented_profile("ceiling_student")
+        profile["current_difficulty"] = 5
+        save_profile(profile)
+        for i in range(6):
+            record_attempt("ceiling_student", f"word{i}", True, 4.0, [], "animals", 5)
+        p = load_profile("ceiling_student")
+        assert p["current_difficulty"] == 5
+        assert p["difficulty_log"][-1]["reason"] == "at_max"
+
+    def test_difficulty_does_not_undershoot_minimum(self):
+        """Already at the floor with a weak success rate: reported as
+        "at_min", and the level never drops below difficulty_min."""
+        from agent.profiler import load_profile, record_attempt
+        create_consented_profile("floor_student")
+        for i in range(6):
+            record_attempt("floor_student", f"word{i}", False, 20.0, [], "animals", 1)
+        p = load_profile("floor_student")
+        assert p["current_difficulty"] == 1
+        assert p["difficulty_log"][-1]["reason"] == "at_min"
+
+    def test_every_decision_is_stamped_with_algorithm_version(self):
+        from agent.experiments import VARIANT_REGISTRY
+        from agent.profiler import load_profile, record_attempt
+        create_consented_profile("versioned_student")
+        for i in range(6):
+            record_attempt("versioned_student", f"word{i}", True, 4.0, [], "animals", 1)
+        p = load_profile("versioned_student")
+        assert p["difficulty_log"]
+        expected_version = VARIANT_REGISTRY[p["experiment_variant"]]["algorithm_version"]
+        assert all(entry["algorithm_version"] == expected_version for entry in p["difficulty_log"])
+
+    def test_legacy_profile_with_no_attempt_log_evidence_holds_safely(self):
+        """A profile from before this fix (or a long-dormant one) has
+        lifetime word aggregates but an empty attempt_log. Migration must not
+        guess a new difficulty from that stale aggregate data — it holds at
+        whatever difficulty was already persisted until enough *new* events
+        accrue, which is exactly what the min-evidence gate already
+        guarantees with no special-casing required."""
+        from agent.profiler import load_profile, record_attempt, save_profile
+        legacy_profile = {
+            "student_id": "legacy_student",
+            "created_at": "2024-01-01T00:00:00+00:00",
+            "consent": CONSENT_METADATA,
+            "current_difficulty": 4,
+            "total_sessions": 0,
+            "words": {
+                "old_word": {
+                    "attempts": 50, "successes": 5, "failures": 45, "avg_time": 20.0,
+                    "last_seen": "2024-01-01T00:00:00+00:00", "mastered": False,
+                    "next_review": None, "ease_factor": 1.3, "interval_days": 1,
+                },
+            },
+            "phonics_struggles": {}, "theme_preferences": {},
+            "consecutive_failures": 0, "session_history": [],
+        }
+        save_profile(legacy_profile)
+        # Backfill happens on load; three new attempts aren't enough evidence
+        # (cadence opens, but evidence_count 3 < min_evidence 5) to touch the
+        # inherited difficulty=4, regardless of this word's historical 90%
+        # failure rate.
+        for i in range(3):
+            record_attempt("legacy_student", f"new_word{i}", False, 20.0, [], "animals", 4)
+        p = load_profile("legacy_student")
+        assert p["current_difficulty"] == 4
+        assert p["difficulty_log"][-1]["reason"] == "insufficient_evidence"
+
+
 # ── Recommender Tests ───────────────────────────────────────────────────────
 
 class TestRecommender:
@@ -226,6 +353,81 @@ class TestRecommender:
         words = recommender.recommend_words("student_001", count=5)
         word_names = [w["word"] for w in words]
         assert "cat" in word_names
+
+    def test_recommendation_reasons_are_machine_readable_and_do_not_leak_raw_counts(self):
+        """Each recommended word must carry a reasons/score/target_difficulty
+        payload, and the payload must never surface the raw struggle/theme
+        aggregate counters that drove the scoring — only the codes."""
+        from agent.profiler import record_attempt
+        from agent.recommender import recommend_words
+        create_consented_profile("reason_student")
+        record_attempt("reason_student", "ship", False, 20.0, ["digraph-sh"], "transport", 1)
+        words = recommend_words("reason_student", count=10)
+        assert words
+        for w in words:
+            rec = w["recommendation"]
+            assert isinstance(rec["reasons"], list)
+            assert all(isinstance(r, str) for r in rec["reasons"])
+            assert "target_difficulty" in rec
+            assert isinstance(rec["score"], int)
+            # The raw phonics_struggles/theme_preferences dicts must never
+            # appear inside a recommendation payload.
+            assert "phonics_struggles" not in rec
+            assert "theme_preferences" not in rec
+
+    def test_frustration_intervention_is_a_separate_reason_and_does_not_persist(self):
+        """3+ consecutive failures triggers the frustration intervention at
+        recommendation time only — it must show up as its own reason code,
+        with a lowered target_difficulty, and must never overwrite the
+        persisted practice difficulty. Starts above the difficulty floor so
+        the intervention has room to actually lower the target (at the
+        floor, easing "down" is a no-op — see the plain frustration_student
+        variant below for that boundary case)."""
+        from agent.profiler import load_profile, record_attempt, save_profile
+        from agent.recommender import recommend_words
+        profile = create_consented_profile("frustration_student")
+        profile["current_difficulty"] = 3
+        save_profile(profile)
+        for i in range(3):
+            record_attempt("frustration_student", f"hard{i}", False, 20.0, [], "objects", 3)
+        profile_before = load_profile("frustration_student")
+        persisted_difficulty = profile_before["current_difficulty"]
+        assert persisted_difficulty == 3  # 3 attempts is below min_evidence: holds
+
+        words = recommend_words("frustration_student", count=10)
+        assert words
+        assert any("frustration_intervention" in w["recommendation"]["reasons"] for w in words)
+        assert all(w["recommendation"]["target_difficulty"] == 2 for w in words)
+
+        profile_after = load_profile("frustration_student")
+        assert profile_after["current_difficulty"] == persisted_difficulty
+
+    def test_frustration_intervention_is_a_no_op_at_the_difficulty_floor(self):
+        """At difficulty_min, easing "down" has nowhere to go — the
+        intervention must not fire a reason code for a no-op adjustment."""
+        from agent.profiler import record_attempt
+        from agent.recommender import recommend_words
+        create_consented_profile("floor_frustration_student")
+        for i in range(3):
+            record_attempt("floor_frustration_student", f"hard{i}", False, 20.0, [], "objects", 1)
+        words = recommend_words("floor_frustration_student", count=10)
+        assert words
+        assert not any("frustration_intervention" in w["recommendation"]["reasons"] for w in words)
+
+    def test_recommendation_tie_break_is_stable_and_deterministic(self):
+        """Equal-score candidates must always order the same way (by word,
+        alphabetically) regardless of word_bank.json's on-disk order —
+        required for a replay's recommendation order to be reproducible."""
+        from agent.recommender import recommend_words
+        create_consented_profile("tie_break_student")
+        first = recommend_words("tie_break_student", count=20)
+        second = recommend_words("tie_break_student", count=20)
+        assert [w["word"] for w in first] == [w["word"] for w in second]
+        scores = [w["recommendation"]["score"] for w in first]
+        assert scores == sorted(scores, reverse=True)
+        for i in range(len(first) - 1):
+            if scores[i] == scores[i + 1]:
+                assert first[i]["word"] < first[i + 1]["word"]
 
 
 # ── Hint Generator Tests ────────────────────────────────────────────────────

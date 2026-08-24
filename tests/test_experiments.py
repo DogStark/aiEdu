@@ -226,36 +226,99 @@ class TestControlRegression:
                 assert entry_new["interval_days"] == entry_old["interval_days"]
                 assert entry_new["mastered"] == entry_old["mastered"]
 
-    def test_compute_difficulty_matches_pre_parameterization_output(self):
+    def test_compute_difficulty_matches_documented_rolling_window_policy(self):
+        """Regression oracle for the *current* control policy: a rolling
+        window over immutable attempt_log events, gated by evidence, cadence,
+        and cooldown/hysteresis — see agent/profiler.py::_compute_difficulty
+        and ADAPTIVE_DIFFICULTY_DESIGN.md.
+
+        This replaces the old oracle (which encoded per-word lifetime
+        aggregates over the 10 most-recently-*seen distinct words*) since
+        that behavior was exactly the bug this fix corrects: see the issue
+        this test file's regression class exists to protect against
+        regressing away from, now in the other direction.
+        """
+        from agent import experiments
         from agent.profiler import _compute_difficulty
 
-        def pre_parameterization_difficulty(profile: dict) -> int:
-            words = profile["words"]
-            if not words:
-                return 1
-            recent = sorted(words.values(), key=lambda w: w["last_seen"] or "", reverse=True)[:10]
-            if not recent:
-                return profile["current_difficulty"]
-            success_rate = sum(w["successes"] for w in recent) / max(sum(w["attempts"] for w in recent), 1)
+        def oracle_difficulty(profile: dict, params: dict) -> int:
             current = profile["current_difficulty"]
-            if success_rate >= 0.8 and current < 5:
-                return current + 1
-            elif success_rate < 0.4 and current > 1:
-                return current - 1
-            return current
+            attempt_log = profile.get("attempt_log") or []
+            total = len(attempt_log)
+            if total == 0:
+                return params["difficulty_min"]
+            if total - profile.get("difficulty_last_evaluated_attempt_count", 0) < params["difficulty_eval_cadence"]:
+                return current
+            window = attempt_log[-params["difficulty_window_size"]:]
+            if len(window) < params["difficulty_min_evidence"]:
+                return current
+            success_rate = sum(1 for e in window if e["success"]) / len(window)
+            if success_rate >= params["difficulty_up_threshold"] and current < params["difficulty_max"]:
+                direction = 1
+            elif success_rate < params["difficulty_down_threshold"] and current > params["difficulty_min"]:
+                direction = -1
+            else:
+                return current
+            if total - profile.get("difficulty_last_changed_attempt_count", 0) < params["difficulty_cooldown_attempts"]:
+                return current
+            return current + direction
 
-        base_words = {
-            f"word{i}": {"successes": s, "attempts": a, "last_seen": f"2024-01-{i+1:02d}T00:00:00"}
-            for i, (s, a) in enumerate([(4, 5), (5, 5), (1, 5), (0, 5), (5, 5), (3, 5), (2, 5), (5, 5), (4, 5), (0, 5)])
+        params = experiments.VARIANT_REGISTRY["control"]
+
+        def make_log(outcomes: list[bool]) -> list[dict]:
+            return [
+                {"word": f"w{i}", "ts": f"2024-01-01T00:{i:02d}:00+00:00", "success": s}
+                for i, s in enumerate(outcomes)
+            ]
+
+        timelines = [
+            # Fewer attempts than the eval cadence: never evaluated at all.
+            [True, True],
+            # Enough for cadence but not for min-evidence: holds.
+            [True, True, True],
+            # Enough evidence, high success: crosses the up threshold and
+            # clears cooldown (nothing has changed yet, so 0 attempts since
+            # the never-happened last change trivially clears it).
+            [True] * 6,
+            # Enough evidence, low success: crosses the down threshold.
+            [False] * 6,
+            # Alternating outcomes: sits between the thresholds, never moves.
+            [True, False] * 5,
+            # A long run that would cross the threshold repeatedly if
+            # re-evaluated every attempt — the oracle and implementation
+            # must agree step-by-step, including where cooldown blocks a
+            # second change shortly after the first.
+            [True] * 12 + [False] * 6,
+        ]
+        for outcomes in timelines:
+            for starting_difficulty in [1, 3, 5]:
+                profile = {
+                    "current_difficulty": starting_difficulty,
+                    "attempt_log": [],
+                    "difficulty_log": [],
+                    "difficulty_last_evaluated_attempt_count": 0,
+                    "difficulty_last_changed_attempt_count": 0,
+                }
+                # Replay one event at a time so both the oracle and the real
+                # implementation see the same incremental evaluation cadence
+                # a live record_attempt() stream would produce.
+                for i in range(1, len(outcomes) + 1):
+                    profile["attempt_log"] = make_log(outcomes[:i])
+                    expected = oracle_difficulty(profile, params)
+                    actual = _compute_difficulty(profile, params=params)
+                    assert actual == expected, (
+                        f"mismatch at attempt {i} of {outcomes} starting from {starting_difficulty}"
+                    )
+                    profile["current_difficulty"] = actual
+
+        empty_profile = {
+            "current_difficulty": 3,
+            "attempt_log": [],
+            "difficulty_log": [],
+            "difficulty_last_evaluated_attempt_count": 0,
+            "difficulty_last_changed_attempt_count": 0,
         }
-        for starting_difficulty in [1, 2, 3, 4, 5]:
-            profile_new = {"words": base_words, "current_difficulty": starting_difficulty}
-            profile_old = {"words": base_words, "current_difficulty": starting_difficulty}
-            assert _compute_difficulty(profile_new, params=None) == pre_parameterization_difficulty(profile_old)
-
-        empty_new = {"words": {}, "current_difficulty": 3}
-        empty_old = {"words": {}, "current_difficulty": 3}
-        assert _compute_difficulty(empty_new, params=None) == pre_parameterization_difficulty(empty_old)
+        assert _compute_difficulty(empty_profile, params=params) == params["difficulty_min"]
 
     def test_control_bucketed_student_end_to_end_matches_pre_experiment_flow(self, monkeypatch):
         # Force a known student into "control" regardless of hash bucket,
