@@ -69,6 +69,18 @@ def require_account(
     return account
 
 
+def resolve_account_from_key(raw_key: str | None) -> Account | None:
+    """Resolve a raw bearer key to an Account, or None if unknown/empty.
+
+    Used where authentication is optional (e.g. attributing anonymous
+    Bedrock rate-limit buckets to an account when a key is supplied) and
+    must not raise 401 the way require_account does.
+    """
+    if not raw_key:
+        return None
+    return _load_registry().get(_hash_key(raw_key))
+
+
 def authorize_student(account: Account, student_id: str):
     """Ensure the account is allowed to act on this student, or reject with 403.
 

@@ -13,6 +13,7 @@ from agent.ai_safety import (
     validate_story_output,
     validate_words_for_generation,
 )
+from agent.bedrock_guardrails import try_consume_budget
 from agent.log_config import get_logger
 
 logger = get_logger(__name__)
@@ -76,6 +77,10 @@ def _parse_structured_story(raw_text: str) -> str:
 
 
 def _bedrock_story(words: list) -> str | None:
+    if not try_consume_budget("story"):
+        # Global budget exhausted: hard cutover to the template fallback
+        # (the cutover itself is logged once per window by the guardrail).
+        return None
     word_count = len(words)
     try:
         client = boto3.client("bedrock-runtime", config=bedrock_client_config())

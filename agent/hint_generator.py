@@ -14,6 +14,7 @@ from agent.ai_safety import (
     validate_theme,
     validate_word,
 )
+from agent.bedrock_guardrails import try_consume_budget
 from agent.log_config import get_logger
 
 logger = get_logger(__name__)
@@ -102,6 +103,10 @@ def _parse_structured_hint(raw_text: str) -> str:
 
 
 def _bedrock_hint(word: str, theme: str) -> str | None:
+    if not try_consume_budget("hint"):
+        # Global budget exhausted: hard cutover to the template fallback
+        # (the cutover itself is logged once per window by the guardrail).
+        return None
     try:
         client = boto3.client("bedrock-runtime", config=bedrock_client_config())
         prompt = f"<word>{word}</word>\n<theme>{theme}</theme>\nGive the hint now."

@@ -4,6 +4,7 @@ Somzilla.md
 # Python
 __pycache__/
 *.pyc
+.venv/
 
 # Test/lint/type-check tool caches and coverage output
 .pytest_cache/
