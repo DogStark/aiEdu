@@ -617,6 +617,71 @@ class TestAPIRoutes:
         assert "phonics_neighbors" in r.json()
 
 
+# ── Attempt Boundary Validation Tests ──────────────────────────────────────
+
+class TestAttemptBoundaryValidation:
+    """Attempts must reference canonical curriculum words, themes, and phonics
+    tags (issue #22); fabricated curriculum fields never reach the profile."""
+
+    @pytest.fixture
+    def client(self):
+        from fastapi.testclient import TestClient
+
+        from main import app
+        return TestClient(app)
+
+    def _attempt(self, client, **overrides):
+        payload = {
+            "student_id": "api_student",
+            "word": "cat",
+            "success": True,
+            "time_taken_seconds": 5.0,
+            "phonics_tags": ["CVC"],
+            "theme": "animals",
+            "difficulty": 1,
+            "consent_metadata": CONSENT_METADATA,
+        }
+        payload.update(overrides)
+        return client.post("/api/v1/attempt", json=payload, headers=auth())
+
+    def _profile(self):
+        from agent.profiler import load_profile
+
+        return load_profile("api_student", create_if_missing=False)
+
+    def test_unknown_word_is_rejected(self, client):
+        create_consented_profile("api_student")
+        r = self._attempt(client, word="quizzical")
+        assert r.status_code == 422
+        assert self._profile()["words"] == {}
+
+    def test_unknown_theme_is_rejected(self, client):
+        create_consented_profile("api_student")
+        r = self._attempt(client, theme="spaceships")
+        assert r.status_code == 422
+        assert self._profile()["theme_preferences"] == {}
+
+    def test_theme_must_match_the_words_curriculum_theme(self, client):
+        create_consented_profile("api_student")
+        r = self._attempt(client, theme="food")  # "cat" is an "animals" word
+        assert r.status_code == 422
+        assert self._profile()["theme_preferences"] == {}
+
+    def test_unknown_phonics_tag_is_rejected(self, client):
+        create_consented_profile("api_student")
+        r = self._attempt(client, success=False, phonics_tags=["CVC", "zzz-fake"])
+        assert r.status_code == 422
+        assert self._profile()["phonics_struggles"] == {}
+
+    def test_attempt_is_canonicalized_before_storage(self, client):
+        r = self._attempt(client, word="CAT", theme="ANIMALS")
+        assert r.status_code == 200
+        profile = self._profile()
+        assert "cat" in profile["words"]
+        assert "CAT" not in profile["words"]
+        assert "animals" in profile["theme_preferences"]
+
+
 # ── Onboarding Diagnostic Tests ─────────────────────────────────────────────
 
 class TestOnboardingDiagnostic:

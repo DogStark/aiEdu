@@ -5,6 +5,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict, Field
 
+from agent.ai_safety import UnsafeContentError, validate_theme, validate_word
 from agent.auth import (
     Account,
     authorize_student,
@@ -152,6 +153,37 @@ def _word_bank_http_error(exc: WordBankError) -> HTTPException:
     return HTTPException(status_code=422, detail=str(exc))
 
 
+def _validate_attempt_payload(req: AttemptRequest) -> tuple[str, str, list[str]]:
+    """Reject attempts that reference content outside the canonical curriculum.
+
+    Attempts write directly into the learning profile (``words``,
+    ``theme_preferences``, ``phonics_struggles``), which feeds the recommender,
+    difficulty calibration, and reports. A client could otherwise fabricate
+    arbitrary words, themes, or phonics tags and permanently pollute that data.
+    This boundary check pins every attempt to a canonical curriculum word with
+    its real theme and phonics tags, and returns the normalized values to store
+    so the profile never accumulates duplicate casing/spelling variants.
+    """
+    try:
+        word = validate_word(req.word)
+        theme = validate_theme(req.theme)
+        entry = get_word_entry(word)  # validate_word guarantees membership
+    except (UnsafeContentError, WordNotFoundError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    if theme != entry["theme"]:
+        raise HTTPException(
+            status_code=422,
+            detail=f"theme '{theme}' does not match the curriculum entry for word '{word}'.",
+        )
+    unknown_tags = sorted(set(req.phonics_tags) - set(entry["phonics"]))
+    if unknown_tags:
+        raise HTTPException(
+            status_code=422,
+            detail=f"phonics_tags contains tags not present on word '{word}': {unknown_tags}",
+        )
+    return word, theme, req.phonics_tags
+
+
 # --- Endpoints ---
 
 @router.post("/profile", status_code=status.HTTP_201_CREATED)
@@ -181,13 +213,16 @@ def create_student_profile(req: ProfileCreateRequest, account: Account = Depends
 def submit_attempt(req: AttemptRequest, account: Account = Depends(require_account)):
     """Record a word attempt and update the student's learning profile."""
     authorize_student(account, req.student_id)
+    # Curriculum boundary checks run before anything touches the profile so
+    # fabricated attempts cannot pollute the learning profile (issue #22).
+    word, theme, phonics_tags = _validate_attempt_payload(req)
     profile = record_attempt(
         req.student_id,
-        req.word,
+        word,
         req.success,
         req.time_taken_seconds,
-        req.phonics_tags,
-        req.theme,
+        phonics_tags,
+        theme,
         req.difficulty,
         consent_metadata=_consent_dict(req.consent_metadata),
     )
@@ -200,7 +235,7 @@ def submit_attempt(req: AttemptRequest, account: Account = Depends(require_accou
             "student_ref": pseudonymize(req.student_id),
             # Learning content stays out of logs: the word is reduced to a
             # bounded length bucket and the outcome to success/failure.
-            "word_length_bucket": word_length_bucket(len(req.word)),
+            "word_length_bucket": word_length_bucket(len(word)),
             "outcome": "success" if req.success else "failure",
             "time_taken_seconds": req.time_taken_seconds,
         },
