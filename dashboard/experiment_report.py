@@ -14,6 +14,7 @@ from datetime import UTC, datetime
 from agent import experiments
 from agent.log_config import get_logger
 from agent.profiler import list_all_profiles
+from agent.replay import summarize_difficulty_log
 
 logger = get_logger(__name__)
 
@@ -112,6 +113,28 @@ def _compute_session_engagement(profiles: list[dict]) -> tuple:
     return round(statistics.median(session_sizes), 2), round(statistics.mean(session_sizes), 2), len(session_sizes)
 
 
+def _compute_difficulty_dynamics(profiles: list[dict]) -> dict:
+    """Aggregate practice-difficulty level-change/oscillation counts across a
+    variant's profiles, reusing agent.replay.summarize_difficulty_log so
+    "oscillation" is counted identically here and in an offline replay
+    report. Profiles predating the rolling-window fix have no difficulty_log
+    yet (backfilled to [] by agent.profiler.load_profile) and simply
+    contribute zero evaluations rather than being excluded."""
+    increases = decreases = oscillations = total_evaluations = 0
+    for profile in profiles:
+        summary = summarize_difficulty_log(profile.get("difficulty_log", []))
+        increases += summary["increases"]
+        decreases += summary["decreases"]
+        oscillations += summary["oscillations"]
+        total_evaluations += summary["total_evaluations"]
+    return {
+        "total_evaluations": total_evaluations,
+        "increases": increases,
+        "decreases": decreases,
+        "oscillations": oscillations,
+    }
+
+
 def compute_variant_metrics(retention_days: int = DEFAULT_RETENTION_DAYS) -> dict:
     """Compute per-variant retention, time-to-mastery, and session-engagement
     aggregates from all persisted student profiles.
@@ -139,6 +162,11 @@ def compute_variant_metrics(retention_days: int = DEFAULT_RETENTION_DAYS) -> dic
         session_median, session_mean, session_n = _compute_session_engagement(variant_profiles)
         variants_report[variant] = {
             "n_students": len(variant_profiles),
+            # Persisted alongside every metric so a report stays attributable
+            # to the exact decision policy that produced it, even after this
+            # value is bumped by a future tuning pass — see
+            # agent/experiments.py and ADAPTIVE_DIFFICULTY_DESIGN.md.
+            "algorithm_version": experiments.get_variant_params(variant).get("algorithm_version", "unknown"),
             "retention": {"rate": retention_rate, "n": retention_n},
             "time_to_mastery_days": {"median": ttm_median, "mean": ttm_mean, "n": ttm_n},
             "session_engagement": {
@@ -146,6 +174,7 @@ def compute_variant_metrics(retention_days: int = DEFAULT_RETENTION_DAYS) -> dic
                 "mean_words_per_session": session_mean,
                 "n_sessions": session_n,
             },
+            "difficulty_dynamics": _compute_difficulty_dynamics(variant_profiles),
         }
 
     return {

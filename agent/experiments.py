@@ -3,10 +3,22 @@ experimentation framework (see GitHub issue #10).
 
 SCOPE BOUNDARY: this module is measurement infrastructure only. It does not
 change, tune, or "improve" the SM-2 spaced-repetition or difficulty algorithms
-in agent/profiler.py. "control" below is defined to be bit-identical to the
-constants that were hardcoded in agent/profiler.py before this change — see
-the control-regression test in tests/test_experiments.py. Any other variant
-registered here exists to prove the mechanism works, not as a recommendation.
+in agent/profiler.py — it only parameterizes whatever those algorithms are, so
+every variant can be measured against the same yardstick. Any variant
+registered here beyond "control" exists to prove the mechanism works, not as
+a recommendation.
+
+"control" is the production default. Its SM-2 ease/interval constants remain
+bit-identical to the values hardcoded in agent/profiler.py before the
+experimentation framework existed (still enforced by the SM-2 regression test
+in tests/test_experiments.py). Its *difficulty* parameters, however, were
+deliberately redefined by the adaptive-difficulty rolling-window fix: the
+previous "control" difficulty behavior (recompute from each word's lifetime
+aggregate counters, on every attempt, with no evidence/cooldown floor) was
+itself the bug that fix corrects, so preserving it bit-for-bit would mean
+preserving the bug. See agent/profiler.py's _compute_difficulty for the
+corrected policy and algorithm_version below for how each decision is
+attributed to the policy version that produced it.
 
 --- Bucketing strategy ---
 Students are assigned to a variant by hashing student_id into a large fixed
@@ -61,12 +73,41 @@ VARIANT_REGISTRY: dict[str, dict] = {
         "first_success_interval_days": 3,
         # A word is "mastered" once its interval reaches this many days.
         "mastery_interval_days": 14,
-        # Difficulty auto-adjustment.
-        "difficulty_window": 10,
+        # --- Practice difficulty auto-adjustment (agent/profiler.py:_compute_difficulty) ---
+        # Rolling-window policy over immutable attempt_log events (not
+        # per-word lifetime aggregates): see the module docstring above and
+        # the design note (ADAPTIVE_DIFFICULTY_DESIGN.md) for the rationale.
+        #
+        # How many of the most recent attempt *events* form the evaluation
+        # window (evidence can span repeated attempts on one word).
+        "difficulty_window_size": 10,
+        # A window with fewer than this many attempts is not trusted enough
+        # to act on — the level simply holds.
+        "difficulty_min_evidence": 5,
+        # Difficulty is only re-evaluated once at least this many new
+        # attempts have accumulated since the last evaluation. This is what
+        # stops the level from being reconsidered on every single request.
+        "difficulty_eval_cadence": 3,
+        # Hysteresis: once the level actually changes, it cannot change
+        # again until this many further attempts have been recorded — this
+        # is what prevents oscillation on an alternating success/failure
+        # pattern that repeatedly straddles the up/down thresholds.
+        "difficulty_cooldown_attempts": 5,
         "difficulty_up_threshold": 0.8,
         "difficulty_down_threshold": 0.4,
         "difficulty_min": 1,
         "difficulty_max": 5,
+        # --- Frustration intervention (agent/recommender.py) ---
+        # A transient, recommendation-time-only adjustment: it never writes
+        # back to profile["current_difficulty"], so it cannot fight with the
+        # practice-difficulty policy above over what the "real" level is.
+        "frustration_failure_threshold": 3,
+        "frustration_difficulty_step": 1,
+        # Identifies the practice-difficulty decision policy that produced a
+        # given difficulty_log entry, persisted per-decision so replays and
+        # experiment reports stay attributable and reproducible even after
+        # this policy is tuned again in the future.
+        "algorithm_version": "difficulty-v2-rolling-window",
     },
     "variant_a_generous_ease": {
         # DEMONSTRATION VARIANT ONLY — exists to prove the registry/assignment
@@ -80,11 +121,17 @@ VARIANT_REGISTRY: dict[str, dict] = {
         "failure_interval_days": 1,
         "first_success_interval_days": 3,
         "mastery_interval_days": 14,
-        "difficulty_window": 10,
+        "difficulty_window_size": 10,
+        "difficulty_min_evidence": 5,
+        "difficulty_eval_cadence": 3,
+        "difficulty_cooldown_attempts": 5,
         "difficulty_up_threshold": 0.8,
         "difficulty_down_threshold": 0.4,
         "difficulty_min": 1,
         "difficulty_max": 5,
+        "frustration_failure_threshold": 3,
+        "frustration_difficulty_step": 1,
+        "algorithm_version": "difficulty-v2-rolling-window",
     },
 }
 
