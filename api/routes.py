@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from pydantic import BaseModel, ConfigDict, Field
 
 from agent.ai_safety import UnsafeContentError, validate_theme, validate_word
@@ -12,6 +12,12 @@ from agent.auth import (
     require_account,
     require_admin,
     require_researcher,
+    resolve_account_from_key,
+)
+from agent.bedrock_guardrails import (
+    RateLimitExceededError,
+    acquire_request_slot,
+    usage_snapshot,
 )
 from agent.diagnostic import get_next_diagnostic_question, submit_diagnostic_answer
 from agent.hint_generator import get_encouragement, get_hint
@@ -153,35 +159,50 @@ def _word_bank_http_error(exc: WordBankError) -> HTTPException:
     return HTTPException(status_code=422, detail=str(exc))
 
 
-def _validate_attempt_payload(req: AttemptRequest) -> tuple[str, str, list[str]]:
-    """Reject attempts that reference content outside the canonical curriculum.
+def _bearer_key(request: Request) -> str | None:
+    header = request.headers.get("Authorization", "")
+    if not header.startswith("Bearer "):
+        return None
+    key = header.removeprefix("Bearer ").strip()
+    return key or None
 
-    Attempts write directly into the learning profile (``words``,
-    ``theme_preferences``, ``phonics_struggles``), which feeds the recommender,
-    difficulty calibration, and reports. A client could otherwise fabricate
-    arbitrary words, themes, or phonics tags and permanently pollute that data.
-    This boundary check pins every attempt to a canonical curriculum word with
-    its real theme and phonics tags, and returns the normalized values to store
-    so the profile never accumulates duplicate casing/spelling variants.
+
+def _bedrock_principal(
+    request: Request,
+    student_id: str | None = None,
+) -> str:
+    """Identity a Bedrock rate-limit charge is attributed to.
+
+    Per-student when the request names one (finest grain), else the
+    authenticated account, else the client IP for anonymous callers such
+    as /hint. Raw principals never leave this module: only aggregate
+    counts are observable via the admin endpoint.
+    """
+    if student_id is not None:
+        return f"student:{student_id}"
+    account = resolve_account_from_key(_bearer_key(request))
+    if account is not None:
+        return f"account:{account.account_id}"
+    client = request.client
+    return f"ip:{client.host if client else 'unknown'}"
+
+
+def _enforce_bedrock_rate_limit(principal: str) -> None:
+    """Apply the per-principal token bucket to a Bedrock-backed request.
+
+    Design choice (documented in README): exceeding the per-principal rate
+    limit returns 429 with a Retry-After hint rather than silently falling
+    back to templates — silent fallback hides abuse from operators and
+    gives retry-happy clients no signal to back off.
     """
     try:
-        word = validate_word(req.word)
-        theme = validate_theme(req.theme)
-        entry = get_word_entry(word)  # validate_word guarantees membership
-    except (UnsafeContentError, WordNotFoundError) as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
-    if theme != entry["theme"]:
+        acquire_request_slot(principal)
+    except RateLimitExceededError as exc:
         raise HTTPException(
-            status_code=422,
-            detail=f"theme '{theme}' does not match the curriculum entry for word '{word}'.",
-        )
-    unknown_tags = sorted(set(req.phonics_tags) - set(entry["phonics"]))
-    if unknown_tags:
-        raise HTTPException(
-            status_code=422,
-            detail=f"phonics_tags contains tags not present on word '{word}': {unknown_tags}",
-        )
-    return word, theme, req.phonics_tags
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=str(exc),
+            headers={"Retry-After": str(exc.retry_after_seconds)},
+        ) from exc
 
 
 # --- Endpoints ---
@@ -262,7 +283,11 @@ def get_recommendations(req: RecommendRequest, account: Account = Depends(requir
 
 
 @router.post("/hint")
-def get_word_hint(req: HintRequest):
+def get_word_hint(req: HintRequest, request: Request):
+    # Only attempt-1 hints consult Bedrock (later attempts are deterministic
+    # first-letter reveals), so only those consume rate-limit allowance.
+    if req.use_bedrock and req.attempt_number == 1:
+        _enforce_bedrock_rate_limit(_bedrock_principal(request))
     hint = get_hint(req.word, req.theme, req.attempt_number, req.use_bedrock)
     if req.use_bedrock:
         is_fallback = hint.startswith(("It's a", "It belongs to"))
@@ -282,8 +307,10 @@ def get_word_hint(req: HintRequest):
 
 
 @router.post("/story")
-def create_story(req: StoryRequest, account: Account = Depends(require_account)):
+def create_story(req: StoryRequest, request: Request, account: Account = Depends(require_account)):
     authorize_student(account, req.student_id)
+    if req.use_bedrock:
+        _enforce_bedrock_rate_limit(_bedrock_principal(request, req.student_id))
     # Story requests carry a student ID and therefore use the same consent gate.
     # The student ID is never forwarded to generate_story: it is a persistent
     # child identifier and the story generator has no use for a display name.
@@ -453,6 +480,17 @@ def delete_curriculum_word(word: str, account: Account = Depends(require_admin))
     except WordBankError as exc:
         raise _word_bank_http_error(exc) from exc
     return {"deleted": True, "word": deleted["word"]}
+
+
+@router.get("/admin/bedrock-usage")
+def get_bedrock_usage(account: Account = Depends(require_admin)):
+    """Current Bedrock cost-guardrail counters (admin only).
+
+    Aggregates only: daily/monthly budget consumption against their limits,
+    the configured per-principal rate limit, and how many principals are
+    tracked. No student identifiers or raw principals are exposed.
+    """
+    return usage_snapshot()
 
 
 @router.post("/onboarding/diagnostic/next")

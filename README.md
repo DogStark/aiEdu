@@ -122,6 +122,11 @@ export BEDROCK_READ_TIMEOUT_SECONDS=8
 export BEDROCK_MAX_RETRIES=2
 export AI_SAFETY_POLICY_VERSION=2026-08-18
 export ENABLE_GENERATIVE_FEATURES=1   # set to 0 to disable Bedrock hints/stories entirely
+
+# Optional cost guardrails, defaults shown
+export BEDROCK_RATE_LIMIT_PER_MINUTE=10   # per-student/account/IP; -1 disables, 0 blocks all
+export BEDROCK_DAILY_BUDGET=1000          # global invocations per UTC day; -1 = unlimited
+export BEDROCK_MONTHLY_BUDGET=20000       # global invocations per UTC month; -1 = unlimited
 ```
 
 ### AI safety guardrails
@@ -135,6 +140,48 @@ structured JSON response contract, child-appropriate content screening, and
 anything that fails is discarded in favor of the same deterministic template
 fallback used when Bedrock is unavailable. See `agent/ai_safety.py` for the
 full set of checks and `PRIVACY.md` for the privacy posture.
+
+### Bedrock cost guardrails
+
+`agent/bedrock_guardrails.py` caps how much Bedrock can be spent, per caller
+and globally (`agent/hint_generator.py` and `agent/story_mode.py` consult it;
+counters are in-memory and reset on process restart):
+
+- **Per-principal rate limit** — a token bucket of
+  `BEDROCK_RATE_LIMIT_PER_MINUTE` requests per minute, keyed by student ID
+  when the request names one (e.g. `/story`), else by account, else by client
+  IP (anonymous `/hint` callers). Only requests that would actually reach
+  Bedrock consume allowance: later hint attempts are deterministic reveals,
+  and `use_bedrock=False` never counts. Exceeding it returns **429** with a
+  `Retry-After` header rather than silently falling back to templates —
+  silent fallback hides abuse from operators and gives retry-happy clients no
+  signal to back off.
+- **Global daily/monthly budgets** — `BEDROCK_DAILY_BUDGET` /
+  `BEDROCK_MONTHLY_BUDGET` cap total invocations per UTC day/month across all
+  callers. A slot is reserved at dispatch time (just before `invoke_model`),
+  so failed or retried provider calls cannot bypass the cap — deliberately
+  conservative, since under-counting is what produces surprise bills. Once a
+  budget is exhausted, **every** Bedrock-backed request hard-cutovers to the
+  template-only fallback until the window resets; the cutover is logged once
+  per exhausted window.
+- **Observability** — `GET /api/v1/admin/bedrock-usage` (requires the `admin`
+  role) reports daily/monthly usage against limits, whether a budget is
+  currently exhausted, the configured rate limit, and how many principals are
+  tracked. Aggregates only — never student identifiers or raw principals.
+
+```json
+{
+  "daily": { "window": "2026-08-24", "used": 12, "limit": 1000 },
+  "monthly": { "window": "2026-08", "used": 340, "limit": 20000 },
+  "budget_exhausted": false,
+  "rate_limit": { "per_minute": 10 },
+  "tracked_principals": 2
+}
+```
+
+Counters are per-process. A single-process deployment gets exact enforcement;
+horizontally scaled deployments should front these endpoints with a shared
+limiter (or treat each replica's budget as a shard of the true limit).
 
 ### Privacy/retention configuration
 
@@ -170,8 +217,9 @@ teacher's classroom is simply that account's set of students. A caller can only
 read or write students it owns; anything else returns `403`. Requests with no
 key or an unknown key return `401`.
 
-Curriculum-management (`/api/v1/word-bank/*`) and experiment-reporting
-(`/api/v1/experiments/*`) routes are not scoped to a student set at all —
+Curriculum-management (`/api/v1/word-bank/*`), experiment-reporting
+(`/api/v1/experiments/*`), and Bedrock-usage reporting
+(`/api/v1/admin/bedrock-usage`) routes are not scoped to a student set at all —
 they require an account with the `admin` role (or, for experiment reporting,
 the `researcher` role) rather than any parent/teacher account.
 
@@ -418,6 +466,18 @@ POST /api/v1/experiments/report/export?retention_days=30
 
 ```json
 { "exported_file": "experiment_report.json" }
+```
+
+### Get Bedrock Usage
+
+Requires an `admin` account. Returns the current Bedrock cost-guardrail
+counters — daily/monthly budget consumption against limits, whether a budget
+is exhausted, the per-principal rate limit, and the number of tracked
+principals (aggregates only, no identifiers). See
+[Bedrock cost guardrails](#bedrock-cost-guardrails).
+
+```http
+GET /api/v1/admin/bedrock-usage
 ```
 
 ---
