@@ -377,6 +377,12 @@ POST /api/v1/attempt
 }
 ```
 
+The `word`, `theme`, and every `phonics_tags` entry must belong to the
+canonical curriculum word bank. Attempts that reference a word, theme, or
+phonics tag outside the curriculum are rejected with `422` and never reach the
+learning profile, and accepted values are normalized to their canonical
+(lowercase) form before storage.
+
 ### Get Word Recommendations
 ```
 POST /api/v1/recommend

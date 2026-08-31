@@ -43,7 +43,7 @@ OTHER_STUDENT_KEY = "leak_probe_other_account_key"
 
 STUDENT_ID = "leak_probe_student"
 FOREIGN_STUDENT_ID = "leak_probe_foreign_student"
-ATTEMPTED_WORD = "quizzical"
+ATTEMPTED_WORD = "elephant"
 HINT_WORD = "cat"
 STORY_WORDS = ["cat", "hat"]
 STORY_SENTENCE_FRAGMENT = "went on a big adventure"
@@ -348,7 +348,7 @@ class TestApiPathsDoNotLeakStudentData:
                 "word": ATTEMPTED_WORD,
                 "success": True,
                 "time_taken_seconds": 7.5,
-                "phonics_tags": ["CVC"],
+                "phonics_tags": ["multisyllabic"],
                 "theme": "animals",
                 "difficulty": 2,
             },
@@ -363,7 +363,7 @@ class TestApiPathsDoNotLeakStudentData:
                 "word": ATTEMPTED_WORD,
                 "success": False,
                 "time_taken_seconds": 12.0,
-                "phonics_tags": ["CVC"],
+                "phonics_tags": ["multisyllabic"],
                 "theme": "animals",
                 "difficulty": 3,
             },
@@ -417,7 +417,7 @@ class TestApiPathsDoNotLeakStudentData:
                 "word": ATTEMPTED_WORD,
                 "success": True,
                 "time_taken_seconds": 1.0,
-                "phonics_tags": ["CVC"],
+                "phonics_tags": ["multisyllabic"],
                 "theme": "animals",
                 "difficulty": 1,
             },
@@ -432,7 +432,7 @@ class TestApiPathsDoNotLeakStudentData:
                 "word": ATTEMPTED_WORD,
                 "success": True,
                 "time_taken_seconds": 1.0,
-                "phonics_tags": ["CVC"],
+                "phonics_tags": ["multisyllabic"],
                 "theme": "animals",
                 "difficulty": 1,
             },
