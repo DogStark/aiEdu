@@ -116,6 +116,6 @@ jobs:
           fetch-depth: 0
 
       - name: Scan for committed secrets
-        uses: trufflesecurity/trufflehog@v3.97.0
+        uses: trufflesecurity/trufflehog@v3.97.4
         with:
           extra_args: --results=verified,unknown
